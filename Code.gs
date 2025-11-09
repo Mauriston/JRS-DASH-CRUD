@@ -265,9 +265,19 @@ ${dadosRelevantes.length > 100 ? `\n... (e mais ${dadosRelevantes.length - 100} 
 function getSugestaoDeLaudo(finalidade, dadosInspecionado) {
   Logger.log(`[Etapa 6.B] getSugestaoDeLaudo chamada para: ${finalidade}`);
   
+  // --- CORREÇÃO PII (PRIVACIDADE) ---
+  // Removemos NIP e Nome antes de enviar para a API
+  const dadosRelevantes = {
+    Finalidade: dadosInspecionado.Finalidade,
+    StatusIS: dadosInspecionado.StatusIS,
+    Laudo_Anterior: dadosInspecionado.Laudo,
+    Restricoes_Anteriores: dadosInspecionado.Restricoes
+  };
+  // --- FIM DA CORREÇÃO ---
+
   const userPrompt = `
 Prezado Assessor DGPM-406, preciso redigir um laudo para uma IS com finalidade: "${finalidade}".
-Os dados do inspecionado são: ${JSON.stringify(dadosInspecionado)}
+Os dados (não-confidenciais) do inspecionado são: ${JSON.stringify(dadosRelevantes)}
 
 Forneça o modelo de conclusão (laudo) e a justificativa técnica cabível, seguindo rigorosamente os padrões de redação da DGPM-406 (Item 8). O laudo deve ser completo e pronto para uso.
 `;
@@ -575,8 +585,11 @@ function _convertDataToObjects(dataValues, headers) {
 function _applyFilters(dataObjects, filters) {
   const { dataInicio, dataFim, finalidade, om, statusIS } = filters;
   
-  const startDate = dataInicio ? new Date(dataInicio) : null;
-  const endDate = dataFim ? new Date(dataFim) : null;
+  // --- CORREÇÃO DE FUSO HORÁRIO ---
+  // Trata a data como local, não UTC, adicionando T00:00:00
+  const startDate = dataInicio ? new Date(dataInicio + 'T00:00:00') : null;
+  const endDate = dataFim ? new Date(dataFim + 'T00:00:00') : null;
+  // --- FIM DA CORREÇÃO ---
 
   // Ajusta as datas para cobrir o dia inteiro
   if (startDate) startDate.setHours(0, 0, 0, 0);
@@ -610,8 +623,10 @@ function _calculateKpis(allDataObjects, filters) {
 
   if (dataInicio && dataFim) {
     try {
-      const startDate = new Date(dataInicio);
-      const endDate = new Date(dataFim);
+      // --- CORREÇÃO DE FUSO HORÁRIO ---
+      const startDate = new Date(dataInicio + 'T00:00:00');
+      const endDate = new Date(dataFim + 'T00:00:00');
+      // --- FIM DA CORREÇÃO ---
       
       // Calcula a duração do período
       const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
@@ -624,8 +639,8 @@ function _calculateKpis(allDataObjects, filters) {
       // Monta os filtros para o período anterior (mantendo os outros filtros)
       const previousFilters = {
         ...filters,
-        dataInicio: prevStartDate.toISOString(),
-        dataFim: prevEndDate.toISOString()
+        dataInicio: prevStartDate.toISOString().split('T')[0], // Converte de volta para YYYY-MM-DD
+        dataFim: prevEndDate.toISOString().split('T')[0]
       };
       
       const previousFilteredData = _applyFilters(allDataObjects, previousFilters);
@@ -726,15 +741,15 @@ function _prepareChartData(filteredData) {
 
   // 2. Gráfico de Finalidades
   const finalidadeMap = _groupAndCount(filteredData, 'Finalidade');
-  const porFinalidade = Object.entries(finalidadeMap).map(([nome, total]) => [nome, total]);
+  const porFinalidade = Object.entries(finalidadeMap).map(([nome, total]) => [nome || 'Não Preenchido', total]);
 
   // 3. Gráfico de Status
   const statusMap = _groupAndCount(filteredData, 'StatusIS');
-  const porStatus = Object.entries(statusMap).map(([nome, total]) => [nome, total]);
+  const porStatus = Object.entries(statusMap).map(([nome, total]) => [nome || 'Não Preenchido', total]);
 
   // 4. Gráfico por OM
   const omMap = _groupAndCount(filteredData, 'OM');
-  const porOM = Object.entries(omMap).map(([nome, total]) => [nome, total]);
+  const porOM = Object.entries(omMap).map(([nome, total]) => [nome || 'Não Preenchido', total]);
 
   return { tendenciaMensal, porFinalidade, porStatus, porOM };
 }
@@ -745,9 +760,12 @@ function _prepareChartData(filteredData) {
 function _groupAndCount(data, key, transformFn = (val) => val) {
   return data.reduce((acc, row) => {
     const groupKey = transformFn(row[key]);
-    if (groupKey) { // Ignora nulos ou vazios
+    // --- CORREÇÃO DE GRÁFICO ---
+    // Conta strings vazias (""), mas não null ou undefined
+    if (groupKey !== null && groupKey !== undefined) { 
       acc[groupKey] = (acc[groupKey] || 0) + 1;
     }
+    // --- FIM DA CORREÇÃO ---
     return acc;
   }, {});
 }
