@@ -585,8 +585,9 @@ function _convertDataToObjects(dataValues, headers) {
 function _applyFilters(dataObjects, filters) {
   const { dataInicio, dataFim, finalidade, om, statusIS } = filters;
   
-  // --- CORREÇÃO DE FUSO HORÁRIO ---
+  // --- CORREÇÃO DE FUSO HORÁRIO (V2) ---
   // Trata a data como local, não UTC, adicionando T00:00:00
+  // Isso força o Apps Script a interpretar a data no fuso horário local (ex: GMT-3)
   const startDate = dataInicio ? new Date(dataInicio + 'T00:00:00') : null;
   const endDate = dataFim ? new Date(dataFim + 'T00:00:00') : null;
   // --- FIM DA CORREÇÃO ---
@@ -623,7 +624,7 @@ function _calculateKpis(allDataObjects, filters) {
 
   if (dataInicio && dataFim) {
     try {
-      // --- CORREÇÃO DE FUSO HORÁRIO ---
+      // --- CORREÇÃO DE FUSO HORÁRIO (V2) ---
       const startDate = new Date(dataInicio + 'T00:00:00');
       const endDate = new Date(dataFim + 'T00:00:00');
       // --- FIM DA CORREÇÃO ---
@@ -777,10 +778,15 @@ function _groupAndCount(data, key, transformFn = (val) => val) {
 function _parseDate(dateInput) {
   if (!dateInput) return null;
   
-  // Se já for um objeto Date (do .setValue())
+  // --- CORREÇÃO FINAL DE FUSO HORÁRIO ---
+  // Se já for um objeto Date (do .setValue() ou getValues())
   if (dateInput instanceof Date) {
-    return dateInput;
+    // O Apps Script lê datas da planilha como UTC (ex: 25/08/2025 00:00 UTC).
+    // Para o Brasil (GMT-3), isso se torna 24/08/2025 @ 21:00.
+    // Esta correção neutraliza o fuso horário, tratando a data "como ela se parece".
+    return new Date(dateInput.getFullYear(), dateInput.getMonth(), dateInput.getDate());
   }
+  // --- FIM DA CORREÇÃO ---
   
   // Se for string (do .getValues())
   if (typeof dateInput === 'string') {
@@ -798,7 +804,9 @@ function _parseDate(dateInput) {
   
   // Se for número (timestamp da planilha)
   if (typeof dateInput === 'number') {
-    return new Date(dateInput);
+    let d = new Date(dateInput);
+    // Mesmo tratamento do 'instanceof Date'
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
   }
 
   return null; // Inválido
