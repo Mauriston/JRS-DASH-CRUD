@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- 1. Fontes (Montserrat para Títulos, Carlito para Corpo) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+
+  <!-- 2. Ícones (Material Symbols) -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+  <!-- 3. Componentes Web Material Design 3 (M3) -->
+  <!-- Carrega todos os componentes M3. Em produção, poderíamos otimizar isso. -->
+  <script type_DISABLED="module" src="https://cdn.jsdelivr.net/npm/@material/web/material-web.js"></script>
+  
+  <!-- 4. Google Charts Loader (Para Etapa 4) -->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <title>JRS-HNaRe - Dashboard</title>
+
+  <!-- 
+  ================================================================
+  CSS (Estilização) Embutido
+  ================================================================
+  -->
+  <style>
+    /* Importação das fontes */
+    @import url('https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Montserrat:wght@700&display=swap');
+    
+    /* --- Variáveis de Tema (Design System) --- */
+    :root {
+      /* Cores */
+      --app-primary-color: #050F41;
+      --app-on-primary-color: #FFFFFF;
+      --app-secondary-color: #4A5B7D; /* Tom de azul/cinza Marinha */
+      --app-on-secondary-color: #FFFFFF;
+      --app-tertiary-color: #B0C4DE; /* Azul claro */
+      --app-background-color: #F5F5F5;
+      --app-on-background-color: #1A1C1E;
+      --app-surface-color: #FFFFFF;
+      --app-on-surface-color: #1A1C1E;
+      --app-surface-variant-color: #E0E2EC;
+      --app-on-surface-variant-color: #44474F;
+      --app-outline-color: #74777F;
+      --app-error-color: #B3261E;
+      --app-success-color: #146C2E;
+
+      /* Tipografia */
+      --app-font-title: 'Montserrat', sans-serif;
+      --app-font-body: 'Carlito', sans-serif;
+
+      /* Outros */
+      --app-header-height: 70px;
+      --app-border-radius: 12px;
+    }
+
+    /* --- Reset Básico e Padrões Globais --- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--app-font-body);
+      background-color: var(--app-background-color);
+      color: var(--app-on-background-color);
+      line-height: 1.5;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--app-font-title);
+    }
+    
+    /* --- Estilização do Header Fixo --- */
+    .app-header {
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      background-color: var(--app-primary-color);
+      color: var(--app-on-primary-color);
+      
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--app-header-height);
+      z-index: 1000;
+      
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .app-header img {
+      height: 50px;
+      width: auto;
+      margin-right: 16px;
+    }
+
+    .app-header .header-title h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .app-header .header-title h2 {
+      font-size: 0.9rem;
+      font-weight: 400;
+      line-height: 1.2;
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    /* --- Layout Principal --- */
+    .main-container {
+      /* Adiciona padding no topo igual à altura do header */
+      margin-top: var(--app-header-height);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Container genérico para seções */
+    .container-box {
+      background-color: var(--app-surface-color);
+      border-radius: var(--app-border-radius);
+      padding: 24px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      border: 1px solid var(--app-surface-variant-color);
+    }
+
+    .container-box h3 {
+      font-size: 1.2rem;
+      color: var(--app-primary-color);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    /* --- Seção de Filtros --- */
+    #filtros-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      align-items: end;
+    }
+
+    /* --- Seção de KPIs --- */
+    .kpi-container {
+      display: grid;
+      /* 6 colunas, mas se ajusta automaticamente */
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    /* Estilo interno dos cards de KPI */
+    .kpi-card {
+      padding: 16px;
+    }
+    
+    .kpi-card-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .kpi-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--app-font-title);
+      font-size: 0.9rem;
+      color: var(--app-on-surface-variant-color);
+      font-weight: 700;
+    }
+    
+    .kpi-card-header md-icon {
+      color: var(--app-secondary-color);
+    }
+
+    .kpi-card-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--app-primary-color);
+      line-height: 1;
+    }
+    
+    /* Estilos para variação MoM */
+    .kpi-card-variation {
+      display: flex;
+      align-items: center;
+      font-size: 0.85rem;
+      gap: 4px;
+    }
+
+    .kpi-card-variation.positive {
+      color: var(--app-success-color);
+    }
+    
+    .kpi-card-variation.negative {
+      color: var(--app-error-color);
+    }
+    
+    .kpi-card-variation md-icon {
+      font-size: 1rem;
+      --md-icon-size: 1rem;
+    }
+
+    /* --- Seção de Gráficos --- */
+    .charts-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .chart-box {
+      width: 100%;
+      min-height: 350px;
+      /* O Google Charts vai injetar o gráfico aqui */
+    }
+
+    /* --- Seção Tabela CRUD --- */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+    }
+    
+    #crud-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    #crud-table th, #crud-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--app-surface-variant-color);
+    }
+
+    #crud-table th {
+      font-family: var(--app-font-title);
+      font-size: 0.9rem;
+      color: var(--app-on-surface-variant-color);
+    }
+    
+    /* --- Loading Overlay --- */
+    .loading-scrim {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.7);
+      z-index: 9998;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      
+      /* Começa escondido */
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    
+    .loading-scrim.visible {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .loading-scrim md-linear-progress {
+      position: fixed;
+      top: var(--app-header-height); /* Abaixo do header */
+      left: 0;
+      width: 100%;
+      z-index: 9999;
+      --md-linear-progress-track-color: var(--app-tertiary-color);
+      --md-linear-progress-indicator-color: var(--app-primary-color);
+    }
+
+    /* --- Responsividade --- */
+    @media (max-width: 900px) {
+      .charts-container {
+        grid-template-columns: 1fr; /* Gráficos em coluna única */
+      }
+    }
+    
+    @media (max-width: 600px) {
+      .app-header {
+        padding: 0 16px;
+      }
+      
+      .app-header .header-title h1 {
+        font-size: 1rem;
+      }
+      .app-header .header-title h2 {
+        font-size: 0.8rem;
+      }
+      
+      .main-container {
+        padding: 16px;
+      }
+      
+      .container-box {
+        padding: 16px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- 
+  ================================================================
+  HTML (Esqueleto)
+  ================================================================
+  -->
+
+  <!-- 1. Header Fixo -->
+  <header class="app-header">
+    <img src="https://i.imgur.com/KUbQz08.png" alt="Logo Marinha do Brasil">
+    <div class="header-title">
+      <h1>JUNTA REGULAR de SAÚDE</h1>
+      <h2>HOSPITAL NAVAL DE RECIFE</h2>
+    </div>
+  </header>
+
+  <!-- 2. Container Principal (Abaixo do Header) -->
+  <main class="main-container">
+
+    <!-- 3. Indicador de Loading Global -->
+    <div id="loading-overlay" class="loading-scrim">
+      <!-- O progresso linear é posicionado fixo no topo -->
+      <md-linear-progress indeterminate></md-linear-progress>
+    </div>
+    
+    <!-- 4. Seção de Filtros -->
+    <section id="filtros-container" class="container-box">
+      <h3>
+        <md-icon>filter_list</md-icon>
+        Filtros
+      </h3>
+      <!-- Dropdowns e botões serão adicionados na Etapa 4 -->
+      <div id="filtros-inputs">
+        <p>(Espaço para Filtros - Etapa 4)</p>
+      </div>
+    </section>
+
+    <!-- 5. Seção de KPIs -->
+    <section id="kpi-container" class="kpi-container">
+      <!-- KPI 1: Agendadas -->
+      <md-elevated-card id="kpi-agendadas" class="kpi-card">
+        <div class="kpi-card-content">
+          <div class="kpi-card-header">
+            <span>Agendadas/Remarcadas</span>
+            <md-icon>event</md-icon>
+          </div>
+          <div id="kpi-agendadas-value" class="kpi-card-value">-</div>
+        </div>
+      </md-elevated-card>
+      
+      <!-- KPI 2: Auditoria -->
+      <md-elevated-card id="kpi-auditoria" class="kpi-card">
+        <div class="kpi-card-content">
+          <div class="kpi-card-header">
+            <span>Em Auditoria/JSD</span>
+            <md-icon>search</md-icon>
+          </div>
+          <div id="kpi-auditoria-value" class="kpi-card-value">-</div>
+        </div>
+      </md-elevated-card>
+
+      <!-- KPI 3: MSG Pendente -->
+      <md-elevated-card id="kpi-msg" class="kpi-card">
+        <div class="kpi-card-content">
+          <div class="kpi-card-header">
+            <span>MSG Pendente</span>
+            <md-icon>notification_important</md-icon>
+          </div>
+          <div id="kpi-msg-value" class="kpi-card-value">-</div>
+        </div>
+      </md-elevated-card>
+
+      <!-- KPI 4: Laudo Assinado (com variação) -->
+      <md-elevated-card id="kpi-laudos" class="kpi-card">
+        <div class="kpi-card-content">
+          <div class="kpi-card-header">
+            <span>Laudos Assinados</span>
+            <md-icon>assignment_turned_in</md-icon>
+          </div>
+          <div id="kpi-laudos-value" class="kpi-card-value">-</div>
+          <div id="kpi-laudos-variation" class="kpi-card-variation">
+            <!-- Conteúdo dinâmico (Etapa 4) -->
+          </div>
+        </div>
+      </md-elevated-card>
+
+      <!-- KPI 5: Faltas (com variação) -->
+      <md-elevated-card id="kpi-faltas" class="kpi-card">
+        <div class="kpi-card-content">
+          <div class="kpi-card-header">
+            <span>Faltas</span>
+            <md-icon>person_off</md-icon>
+          </div>
+          <div id="kpi-faltas-value" class="kpi-card-value">-</div>
+          <div id="kpi-faltas-variation" class="kpi-card-variation">
+            <!-- Conteúdo dinâmico (Etapa 4) -->
+          </div>
+        </div>
+      </md-elevated-card>
+
+      <!-- KPI 6: Canceladas (com variação) -->
+      <md-elevated-card id="kpi-canceladas" class="kpi-card">
+        <div class="kpi-card-content">
+          <div class="kpi-card-header">
+            <span>Canceladas</span>
+            <md-icon>event_busy</md-icon>
+          </div>
+          <div id="kpi-canceladas-value" class="kpi-card-value">-</div>
+          <div id="kpi-canceladas-variation" class="kpi-card-variation">
+            <!-- Conteúdo dinâmico (Etapa 4) -->
+          </div>
+        </div>
+      </md-elevated-card>
+    </section>
+    
+    <!-- 6. Seção Assessor Normativo (Etapa 6) -->
+    <section id="assessor-container" class="container-box">
+<!-- ... código H3 ... -->
+      <div id="assessor-content">
+        <!-- ETAPA 6: Conteúdo dinâmico será injetado aqui -->
+        <md-linear-progress indeterminate id="assessor-loading" style="display: none;"></md-linear-progress>
+        <md-list id="assessor-list"></md-list>
+      </div>
+    </section>
+
+    <!-- 7. Seção de Gráficos (Dashboard) -->
+    <section class="charts-container">
+      <div class="container-box">
+        <h3>Tendência Mensal de Inspeções</h3>
+        <div id="chart-tendencia" class="chart-box"></div>
+      </div>
+      <div class="container-box">
+        <h3>Distribuição de Finalidades</h3>
+        <div id="chart-finalidade" class="chart-box"></div>
+      </div>
+      <div class="container-box">
+        <h3>Distribuição de Status</h3>
+        <div id="chart-status" class="chart-box"></div>
+      </div>
+      <div class="container-box">
+        <h3>Inspeções por OM</h3>
+        <div id="chart-om" class="chart-box"></div>
+      </div>
+    </section>
+
+    <!-- 8. Seção da Tabela CRUD -->
+    <section id="tabela-container" class="container-box">
+      <h3>
+        <md-icon>table_rows</md-icon>
+        Inspeções Detalhadas (CRUD)
+      </h3>
+      <div class="table-wrapper">
+        <table id="crud-table">
+          <thead>
+            <!-- Cabeçalho (Etapa 5) -->
+          </thead>
+          <tbody id="crud-table-body">
+            <!-- Linhas de dados (Etapa 5) -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 
+  ================================================================
+  Modais e Diálogos (Escondidos por padrão)
+  ================================================================
+  -->
+  
+  <!-- Diálogo para Ações CRUD (Etapa 5) -->
+  <md-dialog id="crud-dialog">
+    <div slot="headline" id="crud-dialog-title"></div>
+    <form id="crud-dialog-form" slot="content" method="dialog">
+      <!-- Conteúdo dinâmico (Etapa 5) -->
+    </form>
+    <div slot="actions">
+      <md-text-button form="crud-dialog-form" value="cancelar">Cancelar</md-text-button>
+      <md-filled-button id="crud-dialog-save" form="crud-dialog-form" value="salvar">Salvar</md-filled-button>
+    </div>
+  </md-dialog>
+  
+  <!-- Diálogo para Erros -->
+  <md-dialog id="error-dialog">
+    <div slot="headline">
+      <md-icon slot="icon">error</md-icon>
+      Erro na Aplicação
+    </div>
+    <div slot="content" id="error-dialog-message">
+      Ocorreu um erro inesperado.
+    </div>
+    <div slot="actions">
+      <md-filled-button form="error-dialog-form" value="ok">OK</md-filled-button>
+    </div>
+  </md-dialog>
+
+
+ <!-- ... código HTML e CSS anterior ... -->
+<!-- ... tags de <style>, <header>, <main> ... -->
+<!-- ... seções de filtros, kpis, assessor, charts ... -->
+    <!-- 8. Seção da Tabela CRUD -->
+    <section id="tabela-container" class="container-box">
+<!-- ... código H3 ... -->
+      <div class="table-wrapper">
+        <table id="crud-table">
+          <thead>
+            <!-- Cabeçalho (Etapa 5) -->
+            <tr>
+              <th>Status</th>
+              <th>MSG</th>
+              <th>Data (Entrevista)</th>
+              <th>Inspecionado</th>
+              <th>Finalidade</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="crud-table-body">
+            <!-- Linhas de dados (Etapa 5) -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+<!-- ... diálogos crud-dialog e error-dialog ... -->
+  
+  <!-- 
+  ================================================================
+  JAVASCRIPT (Lógica do Cliente) - Etapas 4 e 5
+  ================================================================
+  -->
+  <script type="module">
+    // --- ETAPA 4: FRONTEND - DASHBOARD (JavaScript) ---
+
+    // --- Variáveis Globais e Referências de DOM ---
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const errorDialog = document.getElementById('error-dialog');
+    const errorDialogMessage = document.getElementById('error-dialog-message');
+    const crudDialog = document.getElementById('crud-dialog');
+    const crudDialogTitle = document.getElementById('crud-dialog-title');
+    const crudDialogForm = document.getElementById('crud-dialog-form');
+    const crudDialogSaveButton = document.getElementById('crud-dialog-save');
+    const tableHeader = document.querySelector("#crud-table thead");
+    const tableBody = document.getElementById('crud-table-body');
+    
+    // Elementos de KPI
+// ... (código dos kpis da Etapa 4) ...
+    const kpiAgendadas = document.getElementById('kpi-agendadas-value');
+    const kpiAuditoria = document.getElementById('kpi-auditoria-value');
+    const kpiMsgPendente = document.getElementById('kpi-msg-value');
+    const kpiLaudos = document.getElementById('kpi-laudos-value');
+    const kpiFaltas = document.getElementById('kpi-faltas-value');
+    const kpiCanceladas = document.getElementById('kpi-canceladas-value');
+    
+    // Container dos Filtros
+    const filtrosContainer = document.getElementById('filtros-inputs');
+    
+    // Estado Global
+    let appData = {
+      table: [],
+      ref: {}
+    };
+    
+    // Opções Padrão dos Gráficos (Alinhado com a Identidade Visual)
+// ... (código chartBaseOptions da Etapa 4) ...
+    const chartBaseOptions = {
+      fontName: 'Carlito',
+      fontSize: 12,
+      backgroundColor: 'transparent',
+      titleTextStyle: {
+        fontName: 'Montserrat',
+        fontSize: 14,
+        color: 'var(--app-primary-color)'
+      },
+      legend: { position: 'none' },
+      colors: ['var(--app-primary-color)', 'var(--app-secondary-color)', 'var(--app-tertiary-color)'],
+      hAxis: { 
+        textStyle: { color: 'var(--app-on-surface-variant-color)' },
+        gridlines: { color: 'transparent' }
+      },
+      vAxis: { 
+        textStyle: { color: 'var(--app-on-surface-variant-color)' },
+        gridlines: { color: 'var(--app-surface-variant-color)' },
+        minValue: 0
+      },
+      chartArea: { width: '80%', height: '80%' }
+    };
+
+    // --- Inicialização ---
+
+    // 1. Espera o DOM carregar
+    document.addEventListener('DOMContentLoaded', () => {
+      // 2. Carrega a API do Google Charts (pacotes 'corechart' para barras/pizza, 'line' para linhas)
+      google.charts.load('current', {'packages':['corechart', 'line']});
+      // 3. Define o callback para quando a API de gráficos estiver pronta
+      google.charts.setOnLoadCallback(initializeApp);
+    });
+
+    /**
+     * 3. Função principal de inicialização da aplicação.
+     */
+    function initializeApp() {
+      console.log("App inicializado. Carregando dados...");
+      renderFilterInputs(); // Cria os inputs de filtro
+      setupEventListeners(); // Adiciona listeners aos filtros
+      
+      // --- ETAPA 5 ---
+      // Adiciona listeners para o CRUD
+      setupCrudListeners(); 
+      // --- FIM ETAPA 5 ---
+      
+      loadRefData(); // Carrega dados para os dropdowns
+      loadDashboardData(); // Carrega os dados principais (KPIs, Gráficos)
+    }
+
+    // --- Funções de Carregamento de Dados (API) ---
+
+// ... (código loadRefData e loadDashboardData da Etapa 4) ...
+    /**
+     * Busca os dados de referência (filtros) do backend.
+     */
+    function loadRefData() {
+      showLoading(true); // Mostra loading
+      google.script.run
+        .withSuccessHandler(onRefDataSuccess)
+        .withFailureHandler(onApiFailure)
+        .getRefData();
+    }
+
+    /**
+     * Busca os dados principais (KPIs, Gráficos, Tabela) do backend.
+     */
+    function loadDashboardData() {
+      showLoading(true);
+      
+      // Coleta os valores atuais dos filtros
+      const filters = {
+        dataInicio: document.getElementById('filtro-data-inicio').value,
+        dataFim: document.getElementById('filtro-data-fim').value,
+        finalidade: document.getElementById('filtro-finalidade').value,
+        om: document.getElementById('filtro-om').value,
+        statusIS: document.getElementById('filtro-status').value
+      };
+      
+      console.log("Enviando filtros:", filters);
+      
+      google.script.run
+        .withSuccessHandler(onDataSuccess)
+        .withFailureHandler(onApiFailure)
+        .getSheetData(filters);
+    }
+
+    // --- Callbacks de Sucesso e Falha da API ---
+
+// ... (código onRefDataSuccess da Etapa 4) ...
+    /**
+     * Callback de sucesso para getRefData().
+     * @param {object} refData Os dados para os filtros.
+     */
+    function onRefDataSuccess(refData) {
+      console.log("Dados de Referência recebidos:", refData);
+      appData.ref = refData;
+      
+      // Popula os dropdowns
+      populateSelect('filtro-finalidade', refData.finalidades, "Todas Finalidades");
+      populateSelect('filtro-om', refData.om, "Todas OMs");
+      populateSelect('filtro-status', refData.status, "Todos Status");
+      
+      // Não escondemos o loading aqui, pois o onDataSuccess o fará.
+    }
+
+    /**
+     * Callback de sucesso para getSheetData().
+     * @param {object} data O objeto com { kpis, chartsData, tableData }.
+     */
+    function onDataSuccess(data) {
+      console.log("Dados do Dashboard recebidos:", data);
+      
+      // Guarda os dados da tabela para a Etapa 5
+      appData.table = data.tableData;
+
+      // 1. Atualiza os KPIs
+      updateKpis(data.kpis);
+      
+      // 2. Desenha os Gráficos
+      drawCharts(data.chartsData);
+      
+      // 3. Renderiza a Tabela (Implementação da Etapa 5)
+      renderTable(data.tableData);
+      
+      // 4. (Placeholder Etapa 6) - Chamar o Assessor
+      // loadAssessorAlerts(data.tableData);
+      
+      showLoading(false); // Esconde o loading
+    }
+    
+// ... (código onApiFailure da Etapa 4) ...
+    /**
+     * Callback de falha para CQUALQUER chamada ao google.script.run.
+     * @param {Error} error O objeto de erro.
+     */
+    function onApiFailure(error) {
+      console.error("Falha na API:", error.message);
+      showLoading(false);
+      showError("Erro de Comunicação", `Não foi possível completar a ação. Verifique a conexão ou o log do Apps Script. Detalhe: ${error.message}`);
+    }
+
+    // --- Renderização de Componentes (Filtros, KPIs, Gráficos) ---
+
+// ... (código renderFilterInputs da Etapa 4) ...
+    /**
+     * Cria e injeta o HTML dos componentes de filtro na página.
+     */
+    function renderFilterInputs() {
+      // Define o período padrão: 1º dia do mês atual até hoje.
+      const { startDate, endDate } = getDefaultDateRange();
+      
+      filtrosContainer.innerHTML = `
+        <md-outlined-text-field label="Data Início" type="date" id="filtro-data-inicio" value="${startDate}"></md-outlined-text-field>
+        <md-outlined-text-field label="Data Fim" type="date" id="filtro-data-fim" value="${endDate}"></md-outlined-text-field>
+        
+        <md-outlined-select label="Finalidade" id="filtro-finalidade">
+          <md-select-option value="" selected>Todas Finalidades</md-select-option>
+          <!-- Opções carregadas por loadRefData -->
+        </md-outlined-select>
+        
+        <md-outlined-select label="OM" id="filtro-om">
+          <md-select-option value="" selected>Todas OMs</md-select-option>
+          <!-- Opções carregadas por loadRefData -->
+        </md-outlined-select>
+        
+        <md-outlined-select label="Status da IS" id="filtro-status">
+          <md-select-option value="" selected>Todos Status</md-select-option>
+          <!-- Opções carregadas por loadRefData -->
+        </md-outlined-select>
+        
+        <md-filled-button id="btn-filtrar">
+          <md-icon slot="icon">search</md-icon>
+          Filtrar
+        </md-filled-button>
+      `;
+    }
+
+    /**
+     * Configura os event listeners para os filtros.
+     */
+    function setupEventListeners() {
+      // Botão principal de filtro
+      document.getElementById('btn-filtrar').addEventListener('click', loadDashboardData);
+      
+      // Interatividade: Atualiza ao mudar qualquer filtro (evento 'change' nos M3)
+      document.getElementById('filtro-data-inicio').addEventListener('change', loadDashboardData);
+      document.getElementById('filtro-data-fim').addEventListener('change', loadDashboardData);
+      document.getElementById('filtro-finalidade').addEventListener('change', loadDashboardData);
+      document.getElementById('filtro-om').addEventListener('change', loadDashboardData);
+      document.getElementById('filtro-status').addEventListener('change', loadDashboardData);
+    }
+
+// ... (código updateKpis, renderKpiVariation, drawCharts, drawTendenciaChart, drawBarChart da Etapa 4) ...
+    /**
+     * Atualiza os valores nos cards de KPI.
+     * @param {object} kpis O objeto de KPIs vindo do backend.
+     */
+    function updateKpis(kpis) {
+      kpiAgendadas.textContent = kpis.agendadas;
+      kpiAuditoria.textContent = kpis.auditoria;
+      kpiMsgPendente.textContent = kpis.msgPendente;
+      
+      // KPIs com Variação
+      kpiLaudos.textContent = kpis.laudoAssinado.total;
+      renderKpiVariation(
+        document.getElementById('kpi-laudos-variation'), 
+        kpis.laudoAssinado.variacao
+      );
+      
+      kpiFaltas.textContent = kpis.faltas.total;
+      renderKpiVariation(
+        document.getElementById('kpi-faltas-variation'), 
+        kpis.faltas.variacao
+      );
+      
+      kpiCanceladas.textContent = kpis.canceladas.total;
+      renderKpiVariation(
+        document.getElementById('kpi-canceladas-variation'), 
+        kpis.canceladas.variacao
+      );
+    }
+
+    /**
+     * Helper para renderizar a variação (MoM) em um KPI card.
+     * @param {HTMLElement} element O <div> que conterá a variação.
+     * @param {number} variacao O valor percentual da variação.
+     */
+    function renderKpiVariation(element, variacao) {
+      element.innerHTML = ''; // Limpa
+      let icon = 'horizontal_rule';
+      let cssClass = '';
+      let text = `${variacao}% vs Mês Ant.`;
+
+      if (variacao > 0) {
+        icon = 'arrow_upward';
+        cssClass = 'positive';
+        text = `+${text}`;
+      } else if (variacao < 0) {
+        icon = 'arrow_downward';
+        cssClass = 'negative';
+        // O sinal de menos já está no número
+      }
+      
+      element.className = `kpi-card-variation ${cssClass}`;
+      element.innerHTML = `
+        <md-icon>${icon}</md-icon>
+        <span>${text}</span>
+      `;
+    }
+
+    /**
+     * Desenha todos os gráficos do Google Charts.
+     * @param {object} chartsData Dados agregados vindos do backend.
+     */
+    function drawCharts(chartsData) {
+      try {
+        // 1. Gráfico de Tendência (Linha)
+        drawTendenciaChart(chartsData.tendenciaMensal, chartBaseOptions);
+        
+        // 2. Gráfico de Finalidades (Barras)
+        drawBarChart('chart-finalidade', chartsData.porFinalidade, 'Finalidade', 'Total', chartBaseOptions);
+        
+        // 3. Gráfico de Status (Barras)
+        drawBarChart('chart-status', chartsData.porStatus, 'Status', 'Total', chartBaseOptions);
+        
+        // 4. Gráfico de OM (Barras)
+        drawBarChart('chart-om', chartsData.porOM, 'OM', 'Total', chartBaseOptions);
+      } catch (e) {
+        console.error("Erro ao desenhar gráficos:", e);
+        showError("Erro nos Gráficos", `Não foi possível renderizar os gráficos. Detalhe: ${e.message}`);
+      }
+    }
+
+    /**
+     * Desenha o gráfico de linha de Tendência Mensal.
+     */
+    function drawTendenciaChart(dataArray, baseOptions) {
+      const data = new google.visualization.DataTable();
+      data.addColumn('string', 'Mês');
+      data.addColumn('number', 'Inspeções');
+      data.addRows(dataArray);
+
+      const options = {
+        ...baseOptions,
+        curveType: 'function',
+        pointSize: 5,
+        vAxis: { ...baseOptions.vAxis, viewWindow: { min: 0 } } // Garante que o eixo Y comece em 0
+      };
+      
+      const chart = new google.visualization.LineChart(document.getElementById('chart-tendencia'));
+      chart.draw(data, options);
+    }
+
+    /**
+     * Desenha um gráfico de barras genérico.
+     */
+    function drawBarChart(elementId, dataArray, xLabel, yLabel, baseOptions) {
+      const data = new google.visualization.DataTable();
+      data.addColumn('string', xLabel);
+      data.addColumn('number', yLabel);
+      data.addRows(dataArray);
+      
+      // Ordena pela maior barra para melhor visualização
+      data.sort([{ column: 1, desc: true }]);
+
+      const options = {
+        ...baseOptions,
+        hAxis: { ...baseOptions.hAxis, minValue: 0 },
+      };
+      
+      const chart = new google.visualization.BarChart(document.getElementById(elementId));
+      chart.draw(data, options);
+    }
+    
+    // --- ETAPA 5: FRONTEND - TABELA CRUD E LÓGICA ---
+    
+    /**
+     * Substitui o placeholder: Renderiza a tabela de dados completa.
+     * @param {object[]} tableData Os dados para a tabela.
+     */
+    function renderTable(tableData) {
+      // Renderiza o cabeçalho (já está no HTML, mas poderíamos gerar dinamicamente se quisesse)
+      tableHeader.innerHTML = `
+        <tr>
+          <th>Status</th>
+          <th>MSG</th>
+          <th>Data (Entrevista)</th>
+          <th>Inspecionado</th>
+          <th>Finalidade</th>
+          <th>Ações</th>
+        </tr>
+      `;
+      
+      // Limpa o corpo da tabela
+      tableBody.innerHTML = ''; 
+      
+      if (tableData.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6">Nenhum dado encontrado para os filtros selecionados.</td></tr>';
+        return;
+      }
+      
+      // Cria e anexa cada linha
+      tableData.forEach(row => {
+        const tr = document.createElement('tr');
+        // Armazena o ID da linha (rowIndex) no elemento TR para fácil acesso
+        tr.dataset.rowIndex = row.rowIndex; 
+        tr.innerHTML = renderTableRow(row);
+        tableBody.appendChild(tr);
+      });
+      
+      console.log("Tabela CRUD renderizada com sucesso.");
+    }
+    
+    /**
+     * Gera o HTML interno para uma única linha <tr>.
+     * @param {object} row Dados da linha.
+     * @returns {string} HTML para os <td>s da linha.
+     */
+    function renderTableRow(row) {
+      return `
+        <td>${row.StatusIS || '-'}</td>
+        <td>${row.MSG || '-'}</td>
+        <td>${formatDate(row.DataEntrevista)}</td>
+        <td>
+          <div>${row.Inspecionado || 'Nome não informado'}</div>
+          <small style="color: var(--app-on-surface-variant-color);">${row.NIP || 'NIP não informado'}</small>
+        </td>
+        <td>${row.Finalidade || '-'}</td>
+        <td>
+          <!-- âncora para o menu -->
+          <div style="position: relative; display: flex; justify-content: center;">
+            <md-icon-button id="menu-anchor-${row.rowIndex}">
+              <md-icon>more_vert</md-icon>
+            </md-icon-button>
+            ${renderActionMenu(row)}
+          </div>
+        </td>
+      `;
+    }
+    
+    /**
+     * Formata uma data ISO (ou null) para dd/MM/AAAA.
+     * @param {string | null} isoString Data em formato ISO.
+     * @returns {string} Data formatada ou '-'.
+     */
+    function formatDate(isoString) {
+      if (!isoString) return '-';
+      try {
+        const date = new Date(isoString);
+        // Adiciona timezone offset para evitar problemas de "um dia antes"
+        date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      } catch (e) {
+        return '-';
+      }
+    }
+    
+    /**
+     * (Chain-of-Thought) Implementa a MÁQUINA DE ESTADOS (Lógica de Negócio).
+     * Esta função decide quais ações de menu são permitidas para uma linha.
+     * @param {object} row Dados da linha.
+     * @returns {string} HTML para o <md-menu> com as <md-menu-item>s corretas.
+     */
+    function renderActionMenu(row) {
+      let menuItems = '';
+      const { StatusIS, Laudo, Restricoes, TIS, DS1a, MSG, Finalidade, rowIndex } = row;
+
+      // REGRA FINAL (BLOQUEIO): Se MSG for ENVIADA, bloqueia tudo.
+      if (MSG === 'ENVIADA') {
+        return `
+          <md-menu anchor="menu-anchor-${rowIndex}" menu-corner="start-end" quick>
+            <md-menu-item disabled>
+              <div slot="headline">Bloqueado (MSG Enviada)</div>
+            </md-menu-item>
+          </md-menu>
+        `;
+      }
+      
+      // Ações são adicionadas com base nas regras
+      
+      // Ação: Remarcação de IS
+      if (StatusIS === 'Agendada') {
+        menuItems += `<md-menu-item data-action="REMARCAR_IS">
+                        <div slot="headline">Remarcar IS</div>
+                      </md-menu-item>`;
+      }
+      
+      // Ação: Inserir Laudo
+      if ((StatusIS === 'Agendada' || StatusIS === 'Remarcada') && !Laudo) {
+         menuItems += `<md-menu-item data-action="INSERIR_LAUDO">
+                        <div slot="headline">Inserir Laudo</div>
+                      </md-menu-item>`;
+      }
+      
+      // Ação: Inserir Restrições
+      const statusRestricoesOk = ['Agendada', 'Remarcada', 'Concluída'].includes(StatusIS);
+      const finalidadeRestricoesOk = ['TÉRMINO DE INCAPACIDADE', 'TÉRMINO DE RESTRIÇÕES', 'VERIFICAÇÃO DE DEFICIÊNCIA FUNCIONAL'].includes(Finalidade);
+      if (statusRestricoesOk && finalidadeRestricoesOk && !Restricoes) {
+         menuItems += `<md-menu-item data-action="INSERIR_RESTRICOES">
+                        <div slot="headline">Inserir Restrições</div>
+                      </md-menu-item>`;
+      }
+      
+      // Ação: Auditoria
+      if (StatusIS === 'Concluída') {
+         menuItems += `<md-menu-item data-action="AUDITORIA">
+                        <div slot="headline">Enviar p/ Auditoria</div>
+                      </md-menu-item>`;
+      }
+      if (StatusIS === 'Auditoria') {
+         menuItems += `<md-menu-item data-action="RESTITUIR_AUDITORIA">
+                        <div slot="headline">Restituir da Auditoria</div>
+                      </md-menu-item>`;
+      }
+
+      // Ação: Revisão JSD
+      if (StatusIS === 'Concluída') {
+         menuItems += `<md-menu-item data-action="REVISAO_JSD">
+                        <div slot="headline">Enviar p/ Revisão JSD</div>
+                      </md-menu-item>`;
+      }
+      if (StatusIS === 'JSD') {
+         menuItems += `<md-menu-item data-action="RESTITUIR_JSD">
+                        <div slot="headline">Restituir da JSD</div>
+                      </md-menu-item>`;
+      }
+
+      // Ação: Inserir Nº TIS
+      const statusTisOk = ['Concluída', 'Restituída Auditoria', 'Restituída JSD'].includes(StatusIS);
+      if (statusTisOk && !TIS) {
+         menuItems += `<md-menu-item data-action="INSERIR_TIS">
+                        <div slot="headline">Inserir Nº TIS</div>
+                      </md-menu-item>`;
+      }
+      
+      // Ação: Inserir Código DS-1A
+      if (StatusIS === 'Votada JRS' && !DS1a) {
+         menuItems += `<md-menu-item data-action="INSERIR_DS1A">
+                        <div slot="headline">Inserir Código DS-1a</div>
+                      </md-menu-item>`;
+      }
+      
+      // Ação: Registrar MSG
+      if (StatusIS === 'TIS Assinado' && MSG === 'PENDENTE') {
+         menuItems += `<md-menu-item data-action="REGISTRAR_MSG">
+                        <div slot="headline">Registrar MSG Enviada</div>
+                      </md-menu-item>`;
+      }
+
+      // Se nenhum item foi adicionado
+      if (menuItems === '') {
+        menuItems = `<md-menu-item disabled><div slot="headline">Nenhuma ação disponível</div></md-menu-item>`;
+      }
+
+      return `<md-menu anchor="menu-anchor-${rowIndex}" menu-corner="start-end" quick>${menuItems}</md-menu>`;
+    }
+
+    /**
+     * Configura listeners de eventos para o CRUD (delegação e modal).
+     */
+    function setupCrudListeners() {
+      // 1. Delegação de eventos na tabela
+      // Ouve cliques no corpo da tabela inteira
+      tableBody.addEventListener('click', (e) => {
+        // Encontra o 'md-menu-item' mais próximo que foi clicado
+        const menuItem = e.target.closest('md-menu-item');
+        if (menuItem && menuItem.dataset.action) {
+          const action = menuItem.dataset.action;
+          // Encontra a linha (tr) pai para obter o rowIndex
+          const rowEl = menuItem.closest('tr');
+          const rowIndex = parseInt(rowEl.dataset.rowIndex, 10);
+          
+          // Busca os dados completos da linha no nosso estado global
+          const rowData = appData.table.find(r => r.rowIndex === rowIndex);
+          
+          if (rowData) {
+            openCrudDialog(action, rowData);
+          } else {
+            showError("Erro Interno", `Não foi possível encontrar os dados para a linha ${rowIndex}.`);
+          }
+        }
+        
+        // Lógica para abrir o menu (o M3 não faz isso automaticamente por delegação)
+        const iconButton = e.target.closest('md-icon-button');
+        if (iconButton && iconButton.id.startsWith('menu-anchor-')) {
+          const menu = iconButton.nextElementSibling; // O <md-menu>
+          if (menu && menu.tagName === 'MD-MENU') {
+            menu.open = !menu.open;
+          }
+        }
+      });
+      
+      // 2. Listener para o botão Salvar do modal
+      crudDialogSaveButton.addEventListener('click', handleCrudSave);
+    }
+
+    /**
+     * Abre e configura o <md-dialog> para a ação CRUD específica.
+     * @param {string} action A ação (ex: 'INSERIR_LAUDO').
+     * @param {object} rowData Os dados da linha selecionada.
+     */
+    function openCrudDialog(action, rowData) {
+      let title = "Editar Inspeção";
+      let formHtml = "";
+      
+      // Armazena a ação e o rowIndex no próprio formulário para o 'handleCrudSave'
+      crudDialogForm.dataset.action = action;
+      crudDialogForm.dataset.rowIndex = rowData.rowIndex;
+
+      // Gera o formulário interno do modal
+      switch (action) {
+        case 'REMARCAR_IS':
+          title = "Remarcar Inspeção";
+          formHtml = `<md-outlined-text-field label="Nova Data da Entrevista" type="date" id="crud-nova-data" required></md-outlined-text-field>`;
+          break;
+          
+        case 'INSERIR_LAUDO':
+          title = "Inserir Laudo";
+          formHtml = `<md-outlined-text-field label="Texto do Laudo" type="textarea" rows="5" id="crud-laudo" required></md-outlined-text-field>`;
+          // (Placeholder Etapa 6B)
+          // formHtml += `<md-outlined-button id="btn-sugerir-laudo"><md-icon slot="icon">psychology_alt</md-icon> Sugerir Laudo (Assessor)</md-outlined-button>`;
+          break;
+          
+        case 'INSERIR_RESTRICOES':
+          title = "Inserir Restrições";
+          // Popula o select com as opções de 'ListaRef'
+          const restricoesOptions = appData.ref.restricoes || [];
+          formHtml = `
+            <md-outlined-select label="Restrições (selecione uma ou mais)" id="crud-restricoes" multiple required>
+              ${restricoesOptions.map(r => `<md-select-option value="${r}"><div slot="headline">${r}</div></md-select-option>`).join('')}
+            </md-outlined-select>
+          `;
+          break;
+          
+        case 'INSERIR_TIS':
+          title = "Inserir Número TIS";
+          formHtml = `<md-outlined-text-field label="Nº TIS (ex: 000.000.00000)" id="crud-tis" pattern="[0-9]{3}\.[0-9]{3}\.[0-9]{5}" required></md-outlined-text-field>`;
+          break;
+          
+        case 'INSERIR_DS1A':
+          title = "Inserir Código DS-1a";
+          formHtml = `<md-outlined-text-field label="Código DS-1a" id="crud-ds1a" required></md-outlined-text-field>`;
+          break;
+          
+        // Ações que não precisam de input (são apenas confirmação)
+        case 'AUDITORIA':
+        case 'RESTITUIR_AUDITORIA':
+        case 'REVISAO_JSD':
+        case 'RESTITUIR_JSD':
+        case 'REGISTRAR_MSG':
+          title = "Confirmar Ação";
+          const actionText = action.replace(/_/g, ' ').toLowerCase();
+          formHtml = `<p>Tem certeza que deseja <strong>${actionText}</strong> para esta inspeção?</p>`;
+          break;
+          
+        default:
+          showError("Ação Desconhecida", `A ação '${action}' não possui um formulário.`);
+          return;
+      }
+      
+      crudDialogTitle.textContent = title;
+      crudDialogForm.innerHTML = formHtml;
+      crudDialog.show();
+    }
+    
+    /**
+     * Coleta os dados do <md-dialog> e chama o backend (google.script.run).
+     */
+    function handleCrudSave() {
+      const { action, rowIndex } = crudDialogForm.dataset;
+      
+      let payload = {
+        rowIndex: parseInt(rowIndex, 10)
+      };
+      
+      // Coleta os dados do formulário com base na ação
+      try {
+        switch (action) {
+          case 'REMARCAR_IS':
+            payload.novaData = document.getElementById('crud-nova-data').value;
+            if (!payload.novaData) throw new Error("A nova data é obrigatória.");
+            break;
+          case 'INSERIR_LAUDO':
+            payload.laudo = document.getElementById('crud-laudo').value;
+            if (!payload.laudo) throw new Error("O texto do laudo é obrigatório.");
+            break;
+          case 'INSERIR_RESTRICOES':
+            // O componente 'multiple' retorna um array de valores
+            payload.restricoes = document.getElementById('crud-restricoes').value;
+            if (!payload.restricoes || payload.restricoes.length === 0) throw new Error("Selecione ao menos uma restrição.");
+            break;
+          case 'INSERIR_TIS':
+            payload.tis = document.getElementById('crud-tis').value;
+            if (!payload.tis) throw new Error("O número TIS é obrigatório.");
+            // (Validação de máscara pode ser adicionada aqui)
+            break;
+          case 'INSERIR_DS1A':
+            payload.ds1a = document.getElementById('crud-ds1a').value;
+            if (!payload.ds1a) throw new Error("O código DS-1a é obrigatório.");
+            break;
+          // Ações de confirmação não coletam dados extras
+          case 'AUDITORIA':
+          case 'RESTITUIR_AUDITORIA':
+          case 'REVISAO_JSD':
+          case 'RESTITUIR_JSD':
+          case 'REGISTRAR_MSG':
+            break;
+        }
+      } catch(e) {
+        showError("Erro de Validação", e.message);
+        return; // Não fecha o modal
+      }
+
+      console.log(`Enviando ação CRUD: ${action}`, payload);
+      showLoading(true);
+      
+      google.script.run
+        .withSuccessHandler(onCrudSuccess)
+        .withFailureHandler(onApiFailure)
+        .executeCrudAction(action, payload);
+    }
+
+     // --- ETAPA 6.A: Funções do Assessor Normativo (Dashboard) ---
+
+    /**
+     * [ETAPA 6.A] Chama o backend para obter os alertas do assessor.
+     * @param {object[]} tableData Os dados da tabela para análise.
+     */
+    function loadAssessorAlerts(tableData) {
+      console.log("[Etapa 6.A] Solicitando alertas do Assessor...");
+      assessorLoading.style.display = 'block'; // Mostra loading dos alertas
+      assessorList.innerHTML = ''; // Limpa alertas antigos
+      
+      google.script.run
+        .withSuccessHandler(onAssessorSuccess)
+        .withFailureHandler(onAssessorFailure)
+        .getAssessoriaNormativa(tableData);
+    }
+    
+    /**
+     * [ETAPA 6.A] Callback de sucesso para getAssessoriaNormativa.
+     * @param {string[]} alertas Array de strings (bullet points).
+     */
+    function onAssessorSuccess(alertas) {
+      console.log("[Etapa 6.A] Alertas recebidos:", alertas);
+      assessorLoading.style.display = 'none';
+      
+      if (alertas.length === 0) {
+        assessorList.innerHTML = `<md-list-item><div slot="headline">Nenhum ponto de atenção normativo identificado.</div></md-list-item>`;
+      } else {
+        assessorList.innerHTML = alertas.map(alerta => `
+          <md-list-item>
+            <md-icon slot="start">warning_amber</md-icon>
+            <div slot="headline">${alerta}</div>
+          </md-list-item>
+        `).join('');
+      }
+    }
+    
+    /**
+     * [ETAPA 6.A] Callback de falha para getAssessoriaNormativa.
+     */
+    function onAssessorFailure(error) {
+      console.error("[Etapa 6.A] Falha ao buscar alertas:", error.message);
+      assessorLoading.style.display = 'none';
+      assessorList.innerHTML = `
+        <md-list-item>
+          <md-icon slot="start">error</md-icon>
+          <div slot="headline" style="color: var(--app-error-color);">Falha ao contatar Assessor: ${error.message}</div>
+        </md-list-item>
+      `;
+    }
+    // --- FIM ETAPA 6.A ---
+    
+// ... (Funções de Renderização - renderFilterInputs, setupEventListeners, updateKpis, etc.) ...
+// ... (Funções de Gráficos - drawCharts, drawTendenciaChart, drawBarChart) ...
+    
+    // --- ETAPA 5: FRONTEND - TABELA CRUD E LÓGICA ---
+    
+// ... (funções renderTable, renderTableRow, formatDate, renderActionMenu) ...
+
+    /**
+     * Configura listeners de eventos para o CRUD (delegação e modal).
+     */
+    function setupCrudListeners() {
+      // 1. Delegação de eventos na tabela
+// ... (código existente da delegação do tableBody) ...
+      tableBody.addEventListener('click', (e) => {
+        // ... (código existente para menuItem e iconButton) ...
+        const menuItem = e.target.closest('md-menu-item');
+        if (menuItem && menuItem.dataset.action) {
+          const action = menuItem.dataset.action;
+          const rowEl = menuItem.closest('tr');
+          const rowIndex = parseInt(rowEl.dataset.rowIndex, 10);
+          const rowData = appData.table.find(r => r.rowIndex === rowIndex);
+          
+          if (rowData) {
+            openCrudDialog(action, rowData);
+          } else {
+            showError("Erro Interno", `Não foi possível encontrar os dados para a linha ${rowIndex}.`);
+          }
+        }
+        
+        const iconButton = e.target.closest('md-icon-button');
+        if (iconButton && iconButton.id.startsWith('menu-anchor-')) {
+          const menu = iconButton.nextElementSibling;
+          if (menu && menu.tagName === 'MD-MENU') {
+            menu.open = !menu.open;
+          }
+        }
+      });
+      
+      // 2. Listener para o botão Salvar do modal
+      crudDialogSaveButton.addEventListener('click', handleCrudSave);
+
+      // --- ETAPA 6.B ---
+      // 3. Delegação de evento para o botão "Sugerir Laudo" DENTRO do modal
+      crudDialogForm.addEventListener('click', (e) => {
+        const sugerirButton = e.target.closest('#btn-sugerir-laudo');
+        if (sugerirButton) {
+          handleSugerirLaudo(sugerirButton);
+        }
+      });
+      // --- FIM ETAPA 6.B ---
+    }
+
+    /**
+     * Abre e configura o <md-dialog> para a ação CRUD específica.
+     * @param {string} action A ação (ex: 'INSERIR_LAUDO').
+     * @param {object} rowData Os dados da linha selecionada.
+     */
+    function openCrudDialog(action, rowData) {
+// ... (código existente do openCrudDialog - title, formHtml, datasets) ...
+      let title = "Editar Inspeção";
+      let formHtml = "";
+      
+      crudDialogForm.dataset.action = action;
+      crudDialogForm.dataset.rowIndex = rowData.rowIndex;
+      // --- ETAPA 6.B: Armazena dados da linha para o Assessor ---
+      crudDialogForm.dataset.rowData = JSON.stringify(rowData);
+      // --- FIM ETAPA 6.B ---
+
+      // Gera o formulário interno do modal
+      switch (action) {
+// ... (case 'REMARCAR_IS') ...
+        case 'REMARCAR_IS':
+          title = "Remarcar Inspeção";
+          formHtml = `<md-outlined-text-field label="Nova Data da Entrevista" type="date" id="crud-nova-data" required></md-outlined-text-field>`;
+          break;
+          
+        case 'INSERIR_LAUDO':
+          title = "Inserir Laudo";
+          formHtml = `
+            <md-outlined-text-field label="Texto do Laudo" type="textarea" rows="5" id="crud-laudo" required></md-outlined-text-field>
+            
+            <!-- ETAPA 6.B: Botão de Sugestão -->
+            <div style="margin-top: 16px; text-align: right;">
+              <md-linear-progress indeterminate id="laudo-loading" style="display: none; margin-bottom: 8px;"></md-linear-progress>
+              <md-outlined-button id="btn-sugerir-laudo">
+                <md-icon slot="icon">psychology_alt</md-icon>
+                Sugerir Laudo (Assessor)
+              </md-outlined-button>
+            </div>
+          `;
+          break;
+          
+// ... (outros cases: 'INSERIR_RESTRICOES', 'INSERIR_TIS', etc.) ...
+        case 'INSERIR_RESTRICOES':
+// ... (código existente) ...
+          break;
+          
+        case 'INSERIR_TIS':
+// ... (código existente) ...
+          break;
+          
+        case 'INSERIR_DS1A':
+// ... (código existente) ...
+          break;
+          
+        // Ações que não precisam de input (são apenas confirmação)
+        case 'AUDITORIA':
+// ... (código existente) ...
+          break;
+          
+        default:
+// ... (código existente) ...
+          return;
+      }
+      
+// ... (código existente: crudDialogTitle.textContent, crudDialogForm.innerHTML, crudDialog.show()) ...
+      crudDialogTitle.textContent = title;
+      crudDialogForm.innerHTML = formHtml;
+      crudDialog.show();
+    }
+    
+// ... (função handleCrudSave) ...
+    
+    // --- ETAPA 6.B: Funções do Assessor de Laudo (CRUD) ---
+
+    /**
+     * [ETAPA 6.B] Pega os dados do modal e chama o backend para sugerir um laudo.
+     */
+    function handleSugerirLaudo(button) {
+      console.log("[Etapa 6.B] Solicitando sugestão de laudo...");
+      const laudoLoading = document.getElementById('laudo-loading');
+      const laudoTextarea = document.getElementById('crud-laudo');
+      
+      try {
+        const rowData = JSON.parse(crudDialogForm.dataset.rowData);
+        if (!rowData) {
+          showError("Erro Interno", "Não foi possível ler os dados da linha para o Assessor.");
+          return;
+        }
+
+        button.disabled = true;
+        laudoLoading.style.display = 'block';
+        
+        google.script.run
+          .withSuccessHandler(sugestao => onSugestaoLaudoSuccess(sugestao, button, laudoLoading, laudoTextarea))
+          .withFailureHandler(error => onSugestaoLaudoFailure(error, button, laudoLoading))
+          .getSugestaoDeLaudo(rowData.Finalidade, rowData);
+
+      } catch (e) {
+        showError("Erro ao Sugerir", `Falha ao preparar dados para o Assessor: ${e.message}`);
+      }
+    }
+    
+    /**
+     * [ETAPA 6.B] Callback de sucesso para getSugestaoDeLaudo.
+     */
+    function onSugestaoLaudoSuccess(sugestao, button, laudoLoading, laudoTextarea) {
+      console.log("[Etapa 6.B] Sugestão recebida.");
+      laudoLoading.style.display = 'none';
+      button.disabled = false;
+      laudoTextarea.value = sugestao; // Preenche o textarea
+    }
+
+    /**
+     * [ETAPA 6.B] Callback de falha para getSugestaoDeLaudo.
+     */
+    function onSugestaoLaudoFailure(error, button, laudoLoading) {
+      console.error("[Etapa 6.B] Falha ao sugerir laudo:", error.message);
+      laudoLoading.style.display = 'none';
+      button.disabled = false;
+      // Mostra o erro no modal, não em um popup global
+      showError("Erro do Assessor", error.message);
+    }
+    // --- FIM ETAPA 6.B ---
+    
+    /**
+     * Callback de sucesso para o executeCrudAction.
+     * @param {object} response O objeto de sucesso do backend.
+     */
+    function onCrudSuccess(response) {
+      console.log("Ação CRUD bem-sucedida:", response.message);
+      crudDialog.close(); // Fecha o modal
+      // Recarrega todos os dados para refletir a mudança
+      loadDashboardData(); 
+      // (showLoading(false) é chamado pelo onDataSuccess)
+    }
+
+
+    // --- Funções Auxiliares (Helpers) ---
+
+// ... (código showLoading, showError, populateSelect, getDefaultDateRange da Etapa 4) ...
+    /**
+     * Mostra ou esconde o overlay de loading global.
+     * @param {boolean} visible True para mostrar, false para esconder.
+     */
+    function showLoading(visible) {
+      loadingOverlay.classList.toggle('visible', visible);
+    }
+
+    /**
+     * Mostra o diálogo de erro.
+     * @param {string} title Título do erro.
+     * @param {string} message Mensagem de erro.
+     */
+    function showError(title, message) {
+      errorDialog.headline = title;
+      errorDialogMessage.textContent = message;
+      errorDialog.show();
+    }
+
+    /**
+     * Popula um <md-outlined-select> com opções.
+     * @param {string} selectId ID do elemento select.
+     * @param {string[]} optionsArray Array de strings para as opções.
+     * @param {string} placeholder Texto da primeira opção (ex: "Todos").
+     */
+    function populateSelect(selectId, optionsArray, placeholder) {
+      const select = document.getElementById(selectId);
+      if (!select) return;
+      
+      // Limpa opções antigas, mantendo a primeira (placeholder)
+      while (select.children.length > 1) {
+        select.removeChild(select.lastChild);
+      }
+      
+      // Adiciona as novas
+      for (const option of optionsArray) {
+        const optionEl = document.createElement('md-select-option');
+        optionEl.value = option;
+        optionEl.innerHTML = `<div slot="headline">${option}</div>`;
+        select.appendChild(optionEl);
+      }
+    }
+
+    /**
+     * Retorna o intervalo de datas padrão (1º dia do mês até hoje).
+     * @returns {{startDate: string, endDate: string}} Datas formatadas como YYYY-MM-DD.
+     */
+    function getDefaultDateRange() {
+      const today = new Date();
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+      
+      // Formata como YYYY-MM-DD
+      const endDate = today.toISOString().split('T')[0];
+      const startDate = firstDay.toISOString().split('T')[0];
+      
+      return { startDate, endDate };
+    }
+
+  </script>
+
+</body>
+</html>
+    
+    // Todo o nosso JavaScript das Etapas 4, 5 e 6 virá aqui.
+    
+    // Teste inicial para verificar se o M3 carregou
+    console.log("Material Web (M3) carregado. Pronto para Etapa 4.");
+
+    // Exemplo de como mostrar o loading (usaremos isso na Etapa 4)
+    const loadingOverlay = document.getElementById('loading-overlay');
+    // loadingOverlay.classList.add('visible'); // Para mostrar
+    // loadingOverlay.classList.remove('visible'); // Para esconder
+
+  </script>
+
+</body>
+</html>
