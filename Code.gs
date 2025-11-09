@@ -44,6 +44,24 @@ const COL_MAP_REF = {
   RESTRICOES: 7
 };
 
+// --- ETAPA 6: "Alma" do Assessor Normativo (Gemini System Prompt) ---
+const ASSESSOR_SYSTEM_PROMPT = `
+Você é um Assessor Pericial Sênior, especialista na DGPM-406 (Normas para Perícias Médicas da Marinha). Sua missão é analisar dados de inspeções de saúde (IS) e fornecer orientação técnica precisa, objetiva e estritamente baseada nas normas.
+
+**Suas Responsabilidades:**
+
+1.  **Análise de Alertas:** Identificar proativamente pontos críticos nos dados, como prazos normativos expirando (LTS, restrições), pendências administrativas (Faltas, MSG) e inconsistências.
+2.  **Redação de Laudos (DGPM-406, Item 8):** Gerar modelos de conclusão (laudos) que sigam rigorosamente os padrões de redação:
+    * **Clareza e Concisão:** O laudo deve ser direto e inequívoco.
+    * **Terminologia Técnica:** Usar a terminologia pericial correta ("Apto para o SAM", "Incapaz Temporariamente para o SAM", "Incapaz Definitivamente para o SAM").
+    * **Justificativa:** Fornecer a justificativa técnica (diagnóstico por extenso e CID-10) que ampara a conclusão.
+    * **Contexto da Finalidade:** O laudo deve responder objetivamente à finalidade da IS (ex: "Término de Incapacidade", "Controle Trienal").
+    * **Restrições (Item 10):** Se houver restrições, elas devem ser claras e específicas (ex: "Com restrições às atividades que exijam...").
+    * **LTS (Item 11):** Se houver incapacidade temporária, o prazo da LTS deve ser explícito (ex: "...necessitando de 30 (trinta) dias de LTS...").
+
+**Seu Tom:** Profissional, assertivo, técnico e didático. Você cita a norma implicitamente em suas análises.
+`;
+
 // --- FUNÇÃO PRINCIPAL (WEB APP) ---
 
 /**
@@ -190,34 +208,135 @@ function executeCrudAction(action, payload) {
 // --- FUNÇÕES DE ASSESSORIA (ETAPA 6) ---
 
 /**
- * [ETAPA 6] Analisa o conjunto de dados e gera alertas normativos.
+ * [ETAPA 6.A] Analisa o conjunto de dados e gera alertas normativos.
+ * Esta função chama a API Gemini (gemini-2.5-flash-preview-09-2025)
  * @param {object[]} dadosPlanilha Os dados filtrados ou completos.
- * @returns {string[]} Uma lista de alertas em string.
+ * @returns {string[]} Uma lista de alertas em string (bullet points).
  */
 function getAssessoriaNormativa(dadosPlanilha) {
-  // Lógica a ser implementada na Etapa 6.
-  Logger.log("getAssessoriaNormativa chamada. Implementação pendente.");
-  
-  // Simula um retorno para testes
-  return [
-    "Implementação do Assessor Normativo (Etapa 6) pendente.",
-    "Exemplo: 3 inspeções com prazo de LTS a vencer.",
-    "Exemplo: 1 inspeção com MSG pendente há mais de 5 dias."
-  ];
+  Logger.log(`[Etapa 6.A] getAssessoriaNormativa chamada com ${dadosPlanilha.length} linhas.`);
+
+  // Simplifica os dados para enviar à API, focando apenas no relevante para alertas
+  const dadosRelevantes = dadosPlanilha.map(row => ({
+    StatusIS: row.StatusIS,
+    DataEntrevista: row.DataEntrevista,
+    Restricoes: row.Restricoes, // Assumindo que a data de vencimento está aqui ou no Laudo
+    Laudo: row.Laudo,
+    MSG: row.MSG
+  }));
+
+  const userPrompt = `
+Prezado Assessor DGPM-406, analise o JSON de inspeções a seguir e identifique (com base nas normas DGPM-406) os seguintes pontos críticos:
+
+1.  Inspecionados com LTS ou Restrições vencidas ou a vencer nos próximos 7 dias (baseado na data de hoje: ${new Date().toLocaleDateString('pt-BR')}).
+2.  Inspecionados com Status 'Faltou' ou 'Cancelada' e o desdobramento administrativo pendente (ex: prazo de justificativa).
+3.  Inspeções com Status 'TIS Assinado' e 'MSG' = 'PENDENTE' há mais de 5 dias (prazo normativo para envio).
+
+Retorne um resumo em *bullet points* (use markdown). Se nenhum alerta for encontrado, retorne "Nenhum ponto de atenção normativo identificado."
+
+Dados:
+${JSON.stringify(dadosRelevantes.slice(0, 100))} 
+${dadosRelevantes.length > 100 ? `\n... (e mais ${dadosRelevantes.length - 100} registros)` : ''}
+`;
+
+  try {
+    const geminiResponse = _callGeminiApi(userPrompt, ASSESSOR_SYSTEM_PROMPT);
+    Logger.log(`[Etapa 6.A] Resposta do Gemini (Alertas): ${geminiResponse}`);
+    
+    // Converte os bullet points de markdown em um array de strings
+    return geminiResponse
+      .split('\n') // Quebra por linha
+      .filter(line => line.trim().startsWith('*') || line.trim().startsWith('-')) // Pega apenas bullet points
+      .map(line => line.trim().substring(2).trim()); // Remove o "* "
+
+  } catch (e) {
+    Logger.log(`[Etapa 6.A] Falha ao chamar Gemini para Alertas: ${e.message}`);
+    return ["Erro ao contatar o Assessor Normativo: " + e.message];
+  }
 }
 
 /**
- * [ETAPA 6] Sugere um texto de laudo baseado na finalidade e dados.
+ * [ETAPA 6.B] Sugere um texto de laudo baseado na finalidade e dados.
+ * Esta função chama a API Gemini (gemini-2.5-flash-preview-09-2025)
  * @param {string} finalidade A finalidade da IS.
  * @param {object} dadosInspecionado Os dados da linha do inspecionado.
  * @returns {string} O texto de laudo sugerido.
  */
 function getSugestaoDeLaudo(finalidade, dadosInspecionado) {
-  // Lógica a ser implementada na Etapa 6.
-  Logger.log(`getSugestaoDeLaudo chamada para: ${finalidade}. Implementação pendente.`);
+  Logger.log(`[Etapa 6.B] getSugestaoDeLaudo chamada para: ${finalidade}`);
   
-  // Simula um retorno para testes
-  return `[Implementação da Sugestão de Laudo (Etapa 6) pendente]\n\nBaseado na finalidade '${finalidade}', o laudo padrão seria:\n"Apto / Incapaz para o SAM..."`;
+  const userPrompt = `
+Prezado Assessor DGPM-406, preciso redigir um laudo para uma IS com finalidade: "${finalidade}".
+Os dados do inspecionado são: ${JSON.stringify(dadosInspecionado)}
+
+Forneça o modelo de conclusão (laudo) e a justificativa técnica cabível, seguindo rigorosamente os padrões de redação da DGPM-406 (Item 8). O laudo deve ser completo e pronto para uso.
+`;
+
+  try {
+    const geminiResponse = _callGeminiApi(userPrompt, ASSESSOR_SYSTEM_PROMPT);
+    Logger.log(`[Etapa 6.B] Resposta do Gemini (Laudo): ${geminiResponse}`);
+    return geminiResponse; // Retorna o texto completo do laudo
+
+  } catch (e) {
+    Logger.log(`[Etapa 6.B] Falha ao chamar Gemini para Laudo: ${e.message}`);
+    return "Erro ao gerar sugestão: " + e.message;
+  }
+}
+
+
+/**
+ * (Privada) Função central para chamar a API Gemini (gemini-2.5-flash-preview-09-2025).
+ * @param {string} userPrompt O prompt do usuário.
+ * @param {string} systemPrompt O prompt do sistema (persona).
+ * @returns {string} O texto da resposta do modelo.
+ */
+function _callGeminiApi(userPrompt, systemPrompt) {
+  const apiKey = ""; // Chave de API (deixe em branco, conforme instruções)
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+  const payload = {
+    contents: [{
+      parts: [{ text: userPrompt }]
+    }],
+    systemInstruction: {
+      parts: [{ text: systemPrompt }]
+    },
+    generationConfig: {
+      temperature: 0.3,
+      topP: 0.9,
+      maxOutputTokens: 1024,
+    }
+  };
+
+  const options = {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true // Para capturar erros
+  };
+
+  const response = UrlFetchApp.fetch(apiUrl, options);
+  const responseCode = response.getResponseCode();
+  const responseBody = response.getContentText();
+
+  if (responseCode !== 200) {
+    throw new Error(`API Gemini falhou com código ${responseCode}: ${responseBody}`);
+  }
+
+  const jsonResponse = JSON.parse(responseBody);
+  
+  if (jsonResponse.candidates && 
+      jsonResponse.candidates[0].content && 
+      jsonResponse.candidates[0].content.parts &&
+      jsonResponse.candidates[0].content.parts[0].text) {
+    return jsonResponse.candidates[0].content.parts[0].text;
+  } else {
+    // Trata bloqueio de conteúdo ou resposta malformada
+    if (jsonResponse.candidates && jsonResponse.candidates[0].finishReason === 'SAFETY') {
+      throw new Error("A sugestão foi bloqueada por filtros de segurança.");
+    }
+    throw new Error("Resposta da API Gemini malformada ou vazia.");
+  }
 }
 
 
