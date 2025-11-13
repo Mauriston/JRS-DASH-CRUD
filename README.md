@@ -1,489 +1,219 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base target="_top">
-    <title>Análise Detalhada - App JRS</title>
-    
-    <!-- Importando as fontes usadas no seu app (Oswald e Carlito) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- Importando os ícones do Material Symbols (usados no seu app) -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    
-    <style>
-        :root {
-            --primary-color: #050f41;
-            --success-color: #146c43;
-            --warning-color: #FAB932;
-            --danger-color: #990000;
-            --info-color: #6c757d;
-            --font-oswald: 'Oswald', sans-serif;
-            --font-carlito: 'Carlito', sans-serif;
-            --card-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-        }
+<h1><img src="https://i.imgur.com/KUbQz08.png" width="50"> Análise Detalhada do Aplicativo JRS</h1>
 
-        body {
-            font-family: var(--font-carlito);
-            background-color: #f4f4f9; /* Fundo cinza claro (do seu app) */
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
+Estrutura do Banco de Dados, Páginas e Funcionalidades de um aplicativo Web (Google Apps Script) para gerenciamento de Inspeções de Saúde (IS) e geração de pareceres médicos.
 
-        .container {
-            max-width: 1000px;
-            margin: 20px auto;
-            background-color: transparent;
-        }
+💾 1. Estrutura das Planilhas (O Banco de Dados)
 
-        /* Cabeçalho da página de análise */
-        .header-box {
-            display: flex;
-            align-items: center;
-            background-color: var(--primary-color);
-            color: #fff;
-            padding: 20px 30px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: var(--card-shadow);
-        }
+O aplicativo utiliza o Google Sheets como um banco de dados relacional.
 
-        .header-box .icon {
-            font-size: 50px;
-            margin-right: 20px;
-            font-variation-settings: 'FILL' 1, 'wght' 400;
-        }
+A. Planilha Principal (Vinculada ao Code.gs)
 
-        .header-box h1 {
-            font-family: var(--font-oswald);
-            font-size: 32px;
-            margin: 0;
-            font-weight: 700;
-            line-height: 1.1;
-        }
+📋 ListaControle (A "Tabela" Principal de Inspeções)
 
-        .header-box p {
-            font-family: var(--font-carlito);
-            font-size: 18px;
-            margin: 5px 0 0;
-            opacity: .9;
-        }
+Esta é a tabela central que armazena cada registro de Inspeção de Saúde (IS). É onde os dados do Formulario.html são salvos e de onde o Dashboard.html lê as informações.
 
-        /* Estilo para as seções principais */
-        .section {
-            margin-bottom: 30px;
-        }
+Estrutura de Colunas (Inferida):
 
-        .section-title {
-            display: flex;
-            align-items: center;
-            font-family: var(--font-oswald);
-            font-size: 28px;
-            font-weight: 700;
-            text-transform: uppercase;
-            gap: 15px;
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid var(--primary-color);
-        }
-        
-        .section-title .icon {
-            font-size: 36px;
-            font-variation-settings: 'FILL' 1, 'wght' 600;
-        }
+A: IS (ID)
 
-        /* Estilo para os cards de conteúdo */
-        .card {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: var(--card-shadow);
-            border: 1px solid #e9e9e9;
-            margin-bottom: 20px;
-            overflow: hidden; /* Para o cabeçalho do card */
-        }
+B: DataEntrevista
 
-        .card-header {
-            background-color: #f9f9f9;
-            padding: 15px 20px;
-            border-bottom: 1px solid #e9e9e9;
-        }
-        
-        .card-header h3 {
-            font-family: var(--font-oswald);
-            font-size: 20px;
-            margin: 0;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .card-header h3 .icon {
-            font-size: 24px;
-            font-variation-settings: 'wght' 600;
-        }
+C: Finalidade
 
-        .card-header h4 {
-            font-family: var(--font-oswald);
-            font-size: 18px;
-            margin: 15px 0 5px 0;
-            color: #444;
-        }
-        
-        .card-body {
-            padding: 20px;
-        }
+D: OM
 
-        .card-body p {
-            margin-top: 0;
-            line-height: 1.6;
-        }
+E: P/G/Q
 
-        /* Estilos para listas (usadas na estrutura das planilhas) */
-        ul.columns {
-            padding-left: 20px;
-            column-count: 2; /* Divide a lista em colunas */
-            column-gap: 20px;
-            margin: 0;
-        }
+F: NIP
 
-        ul.columns li {
-            margin-bottom: 8px;
-            font-family: 'Courier New', Courier, monospace; /* Fonte monoespaçada para colunas */
-            font-size: 15px;
-            break-inside: avoid-column;
-        }
-        
-        ul.columns li strong {
-            font-family: var(--font-carlito);
-            font-weight: 700;
-            color: #000;
-        }
+G: Inspecionado
 
-        /* Estilos para listas de funcionalidades */
-        ul.features {
-            padding-left: 20px;
-        }
-        ul.features li {
-            margin-bottom: 10px;
-            line-height: 1.5;
-        }
+H: StatusIS
 
-        /* Destaque para nomes de arquivos e funções */
-        code {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: #eef;
-            padding: 2px 5px;
-            border-radius: 4px;
-            font-size: 0.95em;
-            color: var(--primary-color);
-            font-weight: 700;
-        }
-        
-        /* Cores especiais para tags de lógica */
-        .tag {
-            font-family: var(--font-oswald);
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 4px;
-            color: #fff;
-            font-size: 0.9em;
-        }
-        .tag-create { background-color: var(--success-color); }
-        .tag-read { background-color: var(--info-color); }
-        .tag-update { background-color: var(--warning-color); color: #333;}
-        .tag-delete { background-color: var(--danger-color); }
-        .tag-logic { background-color: var(--primary-color); }
+I: DataLaudo
 
-    </style>
-</head>
-<body>
-    <div class="container">
-        
-        <!-- CABEÇALHO -->
-        <div class="header-box">
-            <span class="material-symbols-outlined icon">analytics</span>
-            <div>
-                <h1>Análise Detalhada do Aplicativo JRS</h1>
-                <p>Estrutura do Banco de Dados, Páginas e Funcionalidades</p>
-            </div>
-        </div>
+J: Laudo
 
-        <!-- SEÇÃO 1: ESTRUTURA DAS PLANILHAS -->
-        <div class="section">
-            <h2 class="section-title">
-                <span class="material-symbols-outlined icon">storage</span>
-                1. Estrutura das Planilhas (O Banco de Dados)
-            </h2>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h4>A. Planilha Principal (Vinculada ao <code>Code.gs</code>)</h4>
-                </div>
-                <div class="card-body">
-                    
-                    <div class="card" style="box-shadow: none; border-color: #ccc; margin-bottom: 15px;">
-                        <div class="card-header">
-                            <h3><span class="material-symbols-outlined icon">fact_check</span><code>ListaControle</code> (A "Tabela" Principal de Inspeções)</h3>
-                        </div>
-                        <div class="card-body">
-                            <p>Esta é a tabela central que armazena cada registro de Inspeção de Saúde (IS). É onde os dados do <code>Formulario.html</code> são salvos e de onde o <code>Dashboard.html</code> lê as informações.</p>
-                            <p><strong>Estrutura de Colunas (Inferida):</strong></p>
-                            <ul class="columns">
-                                <li><code>A: IS</code> <strong>(ID)</strong></li>
-                                <li><code>B: DataEntrevista</code></li>
-                                <li><code>C: Finalidade</code></li>
-                                <li><code>D: OM</code></li>
-                                <li><code>E: P/G/Q</code></li>
-                                <li><code>F: NIP</code></li>
-                                <li><code>G: Inspecionado</code></li>
-                                <li><code>H: StatusIS</code></li>
-                                <li><code>I: DataLaudo</code></li>
-                                <li><code>J: Laudo</code></li>
-                                <li><code>K: Restrições</code></li>
-                                <li><code>L: TIS</code></li>
-                                <li><code>M: DS-1a</code></li>
-                                <li><code>N: MSG</code></li>
-                            </ul>
-                        </div>
-                    </div>
+K: Restrições
 
-                    <div class="card" style="box-shadow: none; border-color: #ccc; margin-bottom: 15px;">
-                        <div class="card-header">
-                            <h3><span class="material-symbols-outlined icon">list_alt</span><code>ListasRef</code> (A "Tabela" de Referência)</h3>
-                        </div>
-                        <div class="card-body">
-                            <p>Armazena as listas de opções usadas nos menus suspensos (dropdowns) do aplicativo, permitindo fácil atualização sem alterar o código.</p>
-                            <p><strong>Estrutura de Colunas:</strong></p>
-                            <ul class="columns">
-                                <li><code>A: Finalidade</code></li>
-                                <li><code>B: OM</code></li>
-                                <li><code>C: P/G</code></li>
-                                <li><code>F: StatusIS</code></li>
-                                <li><code>G: Restrições</code></li>
-                            </ul>
-                        </div>
-                    </div>
+L: TIS
 
-                    <div class="card" style="box-shadow: none; border-color: #ccc; margin-bottom: 15px;">
-                        <div class="card-header">
-                            <h3><span class="material-symbols-outlined icon">badge</span><code>MilitaresHNRe</code> (A "Tabela" de Militares Locais)</h3>
-                        </div>
-                        <div class="card-body">
-                            <p>Usada pelo <code>Formulario.html</code> para autocompletar dados de militares do HNRe.</p>
-                            <p><strong>Estrutura de Colunas:</strong></p>
-                            <ul class="columns">
-                                <li><code>A: P/G</code></li>
-                                <li><code>B: NIP</code></li>
-                                <li><code>C: Inspecionado</code></li>
-                            </ul>
-                        </div>
-                    </div>
+M: DS-1a
 
-                    <div class="card" style="box-shadow: none; border-color: #ccc; margin-bottom: 0;">
-                        <div class="card-header">
-                            <h3><span class="material-symbols-outlined icon">school</span><code>ListaConcursos</code> (A "Tabela" de Concursos)</h3>
-                        </div>
-                        <div class="card-body">
-                            <p>Armazena dados de inspeções de concursos, que são agregados no <code>Dashboard.html</code> (KPIs e gráficos).</p>
-                            <p><strong>Estrutura de Colunas (Parcial):</strong></p>
-                            <ul class="columns">
-                                <li><code>A: EventDate</code></li>
-                                <li><code>G: Finalidade</code></li>
-                                <li><code>I: StatusIS</code></li>
-                            </ul>
-                        </div>
-                    </div>
+N: MSG
 
-                </div>
-            </div>
+📊 ListasRef (A "Tabela" de Referência)
 
-            <div class="card">
-                <div class="card-header">
-                    <h4>B. Planilha Externa (Dados para <code>Parecer.html</code>)</h4>
-                </div>
-                <div class="card-body">
-                    <div class="card" style="box-shadow: none; border-color: #ccc; margin-bottom: 0;">
-                        <div class="card-header">
-                            <h3><span class="material-symbols-outlined icon">person_search</span>Aba <code>MILITAR</code> (na planilha externa)</h3>
-                        </div>
-                        <div class="card-body">
-                            <p>Usada pelo <code>Parecer.html</code> para autocompletar dados de militares.</p>
-                            <p><strong>Estrutura de Colunas:</strong></p>
-                            <ul class="columns">
-                                <li><code>A: NIP</code></li>
-                                <li><code>B: name</code></li>
-                                <li><code>C: OM</code></li>
-                                <li><code>D: posto</code></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+Armazena as listas de opções usadas nos menus suspensos (dropdowns) do aplicativo, permitindo fácil atualização sem alterar o código.
 
-        <!-- SEÇÃO 2: PÁGINAS DO APP WEB -->
-        <div class="section">
-            <h2 class="section-title">
-                <span class="material-symbols-outlined icon">web</span>
-                2. Páginas do App Web
-            </h2>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h3><span class="material-symbols-outlined icon">description</span><code>Formulario.html</code> (Página Padrão)</h3>
-                </div>
-                <div class="card-body">
-                    <p><strong>Propósito:</strong> Criar e adicionar novas Inspeções de Saúde na planilha <code>ListaControle</code>.</p>
-                    <p><strong>Interface:</strong> Um formulário de entrada de dados.</p>
-                    <p><strong>Lógica Dinâmica:</strong></p>
-                    <ul class="features">
-                        <li>Se a OM "HNRe" é selecionada, o campo "Inspecionado" se transforma num menu de busca (com Select2) que puxa dados da <code>MilitaresHNRe</code>. NIP e P/G são preenchidos automaticamente.</li>
-                        <li>Se "Outras" OMs são selecionadas, os campos são de entrada manual.</li>
-                        <li>A seção "Conclusão" (Laudo, Data, TIS, etc.) só aparece se o "Status" for "Concluída", "Votada JRS" ou "TIS assinado".</li>
-                        <li>A seção "Restrições" só aparece se o "Laudo" estiver preenchido, a OM for "HNRe" e a "Finalidade" for de verificação/término.</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h3><span class="material-symbols-outlined icon">dashboard</span><code>Dashboard.html</code> (Página: <code>?page=dashboard</code>)</h3>
-                </div>
-                <div class="card-body">
-                    <p><strong>Propósito:</strong> Visualizar, filtrar e gerenciar todas as inspeções.</p>
-                    <p><strong>Interface:</strong> Uma página de dashboard com KPIs, gráficos e uma tabela de dados detalhada e interativa.</p>
-                    <p><strong>Lógica Dinâmica:</strong></p>
-                    <ul class="features">
-                        <li>Carrega <strong>todos</strong> os dados das planilhas <code>ListaControle</code> e <code>ListaConcursos</code> de uma vez.</li>
-                        <li><strong>Filtros Globais (KPIs e Gráficos):</strong> Os filtros de "Ano" e "Mês" afetam os KPIs (ex: "Total de Inspeções") e os gráficos.</li>
-                        <li><strong>Filtros da Tabela (Client-Side):</strong> A tabela principal tem seus próprios filtros (busca, finalidades, "chips" de status) que operam <strong>no navegador (JavaScript)</strong>, tornando a filtragem instantânea.</li>
-                    </ul>
-                </div>
-            </div>
+Estrutura de Colunas:
 
-            <div class="card">
-                <div class="card-header">
-                    <h3><span class="material-symbols-outlined icon">edit_note</span><code>Parecer.html</code> (Página: <code>?page=parecer</code>)</h3>
-                </div>
-                <div class="card-body">
-                    <p><strong>Propósito:</strong> Gerar documentos PDF de pareceres médicos com base em templates do Google Docs.</p>
-                    <p><strong>Interface:</strong> Um formulário para solicitar o parecer (Especialidade, Militar, Finalidade, Perito, etc.).</p>
-                    <p><strong>Lógica Dinâmica:</strong></p>
-                    <ul class="features">
-                        <li>Possui um seletor de OM que busca dados da planilha <strong>externa</strong> de militares.</li>
-                        <li>Ao enviar, o formulário é desabilitado e 3 novos botões aparecem: "Novo Parecer", "Abrir PDF" e "Enviar Email".</li>
-                        <li>O modal "Enviar Email" permite enviar o PDF para o perito ("zimbra") ou para a secretaria.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+A: Finalidade
 
-        <!-- SEÇÃO 3: FUNCIONALIDADES DETALHADAS -->
-        <div class="section">
-            <h2 class="section-title">
-                <span class="material-symbols-outlined icon">functions</span>
-                3. Funcionalidades Detalhadas (CRUD)
-            </h2>
+B: OM
 
-            <div class="card">
-                <div class="card-header">
-                    <h3><span class="material-symbols-outlined icon" style="color: var(--success-color);">add_circle</span>Criação de Dados <span class="tag tag-create">CREATE</span></h3>
-                </div>
-                <div class="card-body">
-                    <ul class="features">
-                        <li><strong>Gatilho:</strong> Envio do <code>Formulario.html</code>.</li>
-                        <li><strong>Ação:</strong> A função <code>addNewInspection</code> no <code>Code.gs</code> é chamada.</li>
-                        <li><strong>Lógica:</strong> Recebe os dados, formata as "Restrições" (combinando a seleção com o texto "Outros") e adiciona uma nova linha (`appendRow`) à planilha <code>ListaControle</code>.</li>
-                    </ul>
-                </div>
-            </div>
+C: P/G
 
-            <div class="card">
-                <div class="card-header">
-                    <h3><span class="material-symbols-outlined icon" style="color: var(--info-color);">search</span>Leitura de Dados <span class="tag tag-read">READ</span></h3>
-                </div>
-                <div class="card-body">
-                    <ul class="features">
-                        <li><strong>Gatilho:</strong> Carregamento do <code>Dashboard.html</code>, <code>Formulario.html</code> e <code>Parecer.html</code>.</li>
-                        <li><strong>Ação:</strong> Funções como <code>getDashboardData</code>, <code>getDropdownData</code>, etc., são chamadas.</li>
-                        <li><strong>Lógica:</strong> Leem os dados das planilhas <code>ListaControle</code>, <code>ListaConcursos</code>, <code>ListasRef</code>, <code>MilitaresHNRe</code> e da planilha <code>Externa</code> para popular a interface (tabelas, gráficos, dropdowns).</li>
-                    </ul>
-                </div>
-            </div>
+F: StatusIS
 
-            <div class="card">
-                <div class="card-header">
-                    <h3><span class="material-symbols-outlined icon" style="color: var(--warning-color);">edit_square</span>Atualização de Dados <span class="tag tag-update">UPDATE</span></h3>
-                </div>
-                <div class="card-body">
-                    <p>Esta é a funcionalidade mais complexa, centrada no <code>Dashboard.html</code>:</p>
-                    <ul class="features">
-                        <li><strong>Atualizar Status da Mensagem (MSG):</strong>
-                            <ul>
-                                <li><strong>Gatilho:</strong> Clique no ícone <code>sync</code> na tabela.</li>
-                                <li><strong>Lógica (<code>updateMsgStatus</code>):</strong> Localiza a linha pelo Nº da IS e altera a coluna "MSG" para "ENVIADA".</li>
-                            </ul>
-                        </li>
-                        <li><strong>Atualizar Conclusão da Inspeção (Edição Completa):</strong>
-                            <ul>
-                                <li><strong>Gatilho:</strong> Clique no ícone <code>edit</code> na tabela.</li>
-                                <li><strong>Lógica (<code>updateInspectionConclusion</code>):</strong> Abre um modal, permite a edição e, ao salvar, o script <strong>automaticamente define o novo <code>StatusIS</code></strong> com base nos campos preenchidos (Laudo, TIS, DS-1a).</li>
-                            </ul>
-                        </li>
-                        <li><strong>Remarcar Inspeção:</strong>
-                            <ul>
-                                <li><strong>Gatilho:</strong> Clique no ícone <code>event_repeat</code> na tabela.</li>
-                                <li><strong>Lógica (<code>remarcarInspecao</code>):</strong> Abre um modal, atualiza a <code>DataEntrevista</code> e define o <code>StatusIS</code> como "Remarcada".</li>
-                            </ul>
-                        </li>
-                        <li><strong>Visualizar Detalhes (com Lógica):</strong>
-                            <ul>
-                                <li><strong>Gatilho:</strong> Clique no ícone <code>more_vert</code>.</li>
-                                <li><strong>Lógica Oculta:</strong> O modal <code>detailsModal</code> <strong>gera automaticamente uma MINUTA MSG</strong> se a inspeção tiver um código <code>DS-1a</code>, usando os dados daquela linha.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h3><span class="material-symbols-outlined icon" style="color: #6a1b9a;">picture_as_pdf</span>Geração de Documentos <span class="tag tag-logic">LÓGICA</span></h3>
-                </div>
-                <div class="card-body">
-                     <ul class="features">
-                        <li><strong>Gatilho:</strong> Envio do formulário no <code>Parecer.html</code>.</li>
-                        <li><strong>Ação:</strong> A função <code>processForm</code> é chamada.</li>
-                        <li><strong>Lógica:</strong>
-                            <ol>
-                                <li>Encontra o "Template" (Google Doc) correto baseado na "Especialidade".</li>
-                                <li>Faz uma cópia temporária do template.</li>
-                                <li>Substitui os placeholders (ex: <code>{{NOME}}</code>) pelos dados do formulário.</li>
-                                <li>Exporta a cópia como PDF para uma pasta no Google Drive.</li>
-                                <li>Apaga a cópia temporária e retorna o link do PDF.</li>
-                            </ol>
-                        </li>
-                        <li><strong>Ação de Email (<code>sendPdfByEmail</code>):</strong> Pega o PDF gerado e o envia como anexo para o perito ou secretaria.</li>
-                    </ul>
-                </div>
-            </div>
+G: Restrições
 
-            <div class="card">
-                <div class="card-header">
-                    <h3><span class="material-symbols-outlined icon" style="color: var(--danger-color);">delete_forever</span>Funcionalidades Não Encontradas <span class="tag tag-delete">DELETE</span></h3>
-                </div>
-                <div class="card-body">
-                    <p>Não foi identificada nenhuma função no código que permita ao usuário <strong>excluir</strong> um registro de inspeção. As operações de exclusão, aparentemente, devem ser feitas manualmente direto na planilha.</p>
-                </div>
-            </div>
+🏷️ MilitaresHNRe (A "Tabela" de Militares Locais)
 
-        </div>
-    </div>
-</body>
-</html>
+Usada pelo Formulario.html para autocompletar dados de militares do HNRe.
+
+Estrutura de Colunas:
+
+A: P/G
+
+B: NIP
+
+C: Inspecionado
+
+🎓 ListaConcursos (A "Tabela" de Concursos)
+
+Armazena dados de inspeções de concursos, que são agregados no Dashboard.html (KPIs e gráficos).
+
+Estrutura de Colunas (Parcial):
+
+A: EventDate
+
+G: Finalidade
+
+I: StatusIS
+
+B. Planilha Externa (Dados para Parecer.html)
+
+O aplicativo usa uma segunda planilha, externa, para a página "Gerar Parecer".
+
+👤 Aba MILITAR (na planilha externa)
+
+Usada pelo Parecer.html para autocompletar dados de militares.
+
+Estrutura de Colunas:
+
+A: NIP
+
+B: name
+
+C: OM
+
+D: posto
+
+🌐 2. Páginas do App Web
+
+O aplicativo é composto por 3 páginas principais, controladas pela função doGet no Code.gs usando um parâmetro de URL (?page=...).
+
+📝 Formulario.html (Página Padrão)
+
+Propósito: Criar e adicionar novas Inspeções de Saúde na planilha ListaControle.
+
+Interface: Um formulário de entrada de dados.
+
+Lógica Dinâmica:
+
+Se a OM "HNRe" é selecionada, o campo "Inspecionado" se transforma num menu de busca (com Select2) que puxa dados da MilitaresHNRe. NIP e P/G são preenchidos automaticamente.
+
+Se "Outras" OMs são selecionadas, os campos são de entrada manual.
+
+A seção "Conclusão" (Laudo, Data, TIS, etc.) só aparece se o "Status" for "Concluída", "Votada JRS" ou "TIS assinado".
+
+A seção "Restrições" só aparece se o "Laudo" estiver preenchido, a OM for "HNRe" e a "Finalidade" for de verificação/término.
+
+📈 Dashboard.html (Página: ?page=dashboard)
+
+Propósito: Visualizar, filtrar e gerenciar todas as inspeções.
+
+Interface: Uma página de dashboard com KPIs, gráficos e uma tabela de dados detalhada e interativa.
+
+Lógica Dinâmica:
+
+Carrega todos os dados das planilhas ListaControle e ListaConcursos de uma vez.
+
+Filtros Globais (KPIs e Gráficos): Os filtros de "Ano" e "Mês" afetam os KPIs (ex: "Total de Inspeções") e os gráficos.
+
+Filtros da Tabela (Client-Side): A tabela principal tem seus próprios filtros (busca, finalidades, "chips" de status) que operam no navegador (JavaScript), tornando a filtragem instantânea.
+
+✍️ Parecer.html (Página: ?page=parecer)
+
+Propósito: Gerar documentos PDF de pareceres médicos com base em templates do Google Docs.
+
+Interface: Um formulário para solicitar o parecer (Especialidade, Militar, Finalidade, Perito, etc.).
+
+Lógica Dinâmica:
+
+Possui um seletor de OM que busca dados da planilha externa de militares.
+
+Ao enviar, o formulário é desabilitado e 3 novos botões aparecem: "Novo Parecer", "Abrir PDF" e "Enviar Email".
+
+O modal "Enviar Email" permite enviar o PDF para o perito ("zimbra") ou para a secretaria.
+
+⚙️ 3. Funcionalidades Detalhadas (CRUD)
+
+➕ Criação de Dados (CREATE)
+
+Gatilho: Envio do Formulario.html.
+
+Ação: A função addNewInspection no Code.gs é chamada.
+
+Lógica: Recebe os dados, formata as "Restrições" (combinando a seleção com o texto "Outros") e adiciona uma nova linha (appendRow) à planilha ListaControle.
+
+🔍 Leitura de Dados (READ)
+
+Gatilho: Carregamento do Dashboard.html, Formulario.html e Parecer.html.
+
+Ação: Funções como getDashboardData, getDropdownData, etc., são chamadas.
+
+Lógica: Leem os dados das planilhas ListaControle, ListaConcursos, ListasRef, MilitaresHNRe e da planilha Externa para popular a interface (tabelas, gráficos, dropdowns).
+
+🔄 Atualização de Dados (UPDATE)
+
+Esta é a funcionalidade mais complexa, centrada no Dashboard.html:
+
+Atualizar Status da Mensagem (MSG):
+
+Gatilho: Clique no ícone sync na tabela.
+
+Lógica (updateMsgStatus): Localiza a linha pelo Nº da IS e altera a coluna "MSG" para "ENVIADA".
+
+Atualizar Conclusão da Inspeção (Edição Completa):
+
+Gatilho: Clique no ícone edit na tabela.
+
+Lógica (updateInspectionConclusion): Abre um modal, permite a edição e, ao salvar, o script automaticamente define o novo StatusIS com base nos campos preenchidos (Laudo, TIS, DS-1a).
+
+Remarcar Inspeção:
+
+Gatilho: Clique no ícone event_repeat na tabela.
+
+Lógica (remarcarInspecao): Abre um modal, atualiza a DataEntrevista e define o StatusIS como "Remarcada".
+
+Visualizar Detalhes (com Lógica):
+
+Gatilho: Clique no ícone more_vert.
+
+Lógica Oculta: O modal detailsModal gera automaticamente uma MINUTA MSG se a inspeção tiver um código DS-1a, usando os dados daquela linha.
+
+📄 Geração de Documentos (LÓGICA)
+
+Gatilho: Envio do formulário no Parecer.html.
+
+Ação: A função processForm é chamada.
+
+Lógica:
+
+Encontra o "Template" (Google Doc) correto baseado na "Especialidade".
+
+Faz uma cópia temporária do template.
+
+Substitui os placeholders (ex: {{NOME}}) pelos dados do formulário.
+
+Exporta a cópia como PDF para uma pasta no Google Drive.
+
+Apaga a cópia temporária e retorna o link do PDF.
+
+Ação de Email (sendPdfByEmail): Pega o PDF gerado e o envia como anexo para o perito ou secretaria.
+
+❌ Funcionalidades Não Encontradas (DELETE)
+
+Não foi identificada nenhuma função no código que permita ao usuário excluir um registro de inspeção. As operações de exclusão, aparentemente, devem ser feitas manualmente direto na planilha.
