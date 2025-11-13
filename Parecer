@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+      body{font-family:'Carlito',sans-serif;background-color:#f4f4f9;margin:0;padding:20px;color:#333}
+      .container{max-width:800px;margin:20px auto;background-color:#fff;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.1);overflow:hidden}
+      .header-box{display:flex;align-items:center;background-color:#050f41;color:#fff;padding:20px 30px}
+      .header-logo{height:65px;width:auto;margin-right:25px}
+      .header-text h2{font-family:'Oswald',sans-serif;font-size:26px;margin:0;font-weight:700;line-height:1.2}
+      .header-text p{font-family:'Carlito',sans-serif;font-size:18px;margin:5px 0 0;opacity:.9}
+      .form-title{text-align:center;font-family:'Oswald',sans-serif;color:#333;font-size:22px;margin:25px 0 0}
+      form{display:flex;flex-direction:column;gap:20px;padding:30px}
+      .form-row{display:flex;flex-wrap:wrap;gap:20px}
+      .form-group{flex:1;display:flex;flex-direction:column;min-width:200px}
+      label{font-family:'Oswald',sans-serif;font-weight:700;margin-bottom:8px;font-size:15px;color:#555;text-transform:uppercase}
+      input[type=text],textarea,select{padding:10px;font-size:16px;font-family:'Carlito',sans-serif;border:1px solid #ccc;border-radius:4px;width:100%;box-sizing:border-box}
+      input:disabled,select:disabled{background-color:#e9ecef;cursor:not-allowed}
+      textarea{resize:vertical;min-height:100px}
+      .form-actions{display:flex;justify-content:flex-end;margin-top:10px;gap:10px}
+      .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 25px;font-size:18px;font-family:'Oswald',sans-serif;font-weight:700;color:#fff;border:none;border-radius:4px;cursor:pointer;transition:background-color .3s ease;width:auto;text-decoration:none}
+      .btn-primary{background-color:#050f41}.btn-primary:hover{background-color:#0a1a7a}
+      .btn-success{background-color:#079551}.btn-success:hover{background-color:#056d3b}
+      .btn-secondary{background-color:#6c757d}.btn-secondary:hover{background-color:#5a6268}
+      .btn-outline{background-color:transparent;border:2px solid #050f41;color:#050f41;padding:10px}
+      .btn-outline:hover{background-color:rgba(5,15,65,0.1)}
+      .btn:disabled{background-color:#ccc;cursor:not-allowed}
+      #status{margin-top:20px;font-weight:700;text-align:center}.success{color:#28a745}.error{color:#dc3545}
+      .om-selector{display:flex;gap:10px;margin-bottom:10px}
+      .om-selector input[type=radio]{display:none}
+      .om-selector label{padding:8px 15px;border:1px solid #050f41;border-radius:4px;cursor:pointer;transition:all .3s ease;font-weight:400;text-transform:none}
+      .om-selector input[type=radio]:checked+label{background-color:#050f41;color:#fff;font-weight:700}
+      .autocomplete-container{position:relative}
+      .autocomplete-items{position:absolute;border:1px solid #d4d4d4;border-bottom:none;border-top:none;z-index:99;top:100%;left:0;right:0;max-height:200px;overflow-y:auto}
+      .autocomplete-items div{padding:10px;cursor:pointer;background-color:#fff;border-bottom:1px solid #d4d4d4}
+      .autocomplete-items div:hover{background-color:#e9e9e9}
+      .modal-overlay{display:none;position:fixed;z-index:100;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgba(0,0,0,0.5);align-items:center;justify-content:center}
+      .modal-content{background-color:#fefefe;margin:auto;padding:20px;border:1px solid #888;width:90%;max-width:500px;border-radius:8px;text-align:center}
+      .modal-content h2{font-family:'Oswald',sans-serif;color:#050f41;margin-top:0}
+      .modal-actions{display:flex;justify-content:center;gap:15px;margin-top:20px}
+      .specialty-grid-container{display:grid;grid-template-columns:repeat(3, 1fr);gap:10px}
+      .specialty-grid-container input[type=radio]{display:none}
+      .specialty-grid-container label{display:block;padding:12px 10px;border:2px solid #050f41;border-radius:4px;cursor:pointer;text-align:center;font-weight:700;font-family:'Carlito',sans-serif;font-size:16px;transition:all .3s ease;color:#050f41;background-color:transparent}
+      .specialty-grid-container input[type=radio]:checked+label{background-color:#050f41;color:#fff;font-weight:700}
+      
+     /* --- ESTILOS PARA NAVEGAÇÃO (ATUALIZADO) --- */
+      .header-actions{display:flex;margin-left:auto;gap:15px}
+      .IconButton{display:flex;align-items:center;justify-content:center;width:55px;height:55px;border-radius:50%;background-color:rgba(255,255,255,0.1);color:#fff;cursor:pointer;transition:background-color .2s ease-in-out}
+      .IconButton:hover{background-color:rgba(255,255,255,0.2)}
+      .IconButton .material-symbols-outlined { font-size: 30px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-box">
+          <img src="https://i.imgur.com/KUbQz08.png" alt="Logo do Hospital Naval de Recife" class="header-logo">
+          <div class="header-text">
+              <h2>HOSPITAL NAVAL DE RECIFE</h2>
+              <p>Junta Regular de Saúde</p>
+          </div>
+          <div class="header-actions">
+            <div class="IconButton" onclick="navigateTo('formulario')" title="Formulário de Inspeção">
+              <span class="material-symbols-outlined">description</span>
+            </div>
+            <div class="IconButton" onclick="navigateTo('dashboard')" title="Dashboard">
+              <span class="material-symbols-outlined">dashboard</span>
+            </div>
+          </div>
+      </div>
+      
+      <h2 class="form-title">SOLICITAÇÃO DE PARECER MÉDICO</h2>
+
+      <form id="myForm" autocomplete="off">
+        <div class="form-group">
+          <label>ESPECIALIDADE:</label>
+          <div class="specialty-grid-container">
+              <div><input type="radio" id="spec_psiquiatria" name="ESPECIALIDADE" value="Psiquiatria" checked><label for="spec_psiquiatria">Psiquiatria</label></div>
+              <div><input type="radio" id="spec_psicologia" name="ESPECIALIDADE" value="Psicologia"><label for="spec_psicologia">Psicologia</label></div>
+              <div><input type="radio" id="spec_hepatologia" name="ESPECIALIDADE" value="Hepatologia"><label for="spec_hepatologia">Hepatologia</label></div>
+              <div><input type="radio" id="spec_cardiologia" name="ESPECIALIDADE" value="Cardiologia"><label for="spec_cardiologia">Cardiologia</label></div>
+              <div><input type="radio" id="spec_ortopedia" name="ESPECIALIDADE" value="Ortopedia"><label for="spec_ortopedia">Ortopedia</label></div>
+          </div>
+        </div>
+        <div class="form-group"><label>OM DO MILITAR</label><div class="om-selector"><input type="radio" id="om_hnre" name="om_selection" value="hnre" checked><label for="om_hnre">HNRe</label><input type="radio" id="om_outras" name="om_selection" value="outras"><label for="om_outras">Outras OM</label></div></div>
+        <div id="name-container" class="form-group"></div>
+        <div class="form-row"><div class="form-group"><label for="GRAU_HIERARQUICO">GRAU HIERÁRQUICO:</label><select id="GRAU_HIERARQUICO" name="GRAU_HIERARQUICO" required><option value="">Selecione...</option><option value="CMG">CMG</option><option value="CF">CF</option><option value="CC">CC</option><option value="CT">CT</option><option value="1TEN">1TEN</option><option value="2TEN">2TEN</option><option value="GM">GM</option><option value="SO">SO</option><option value="1SG">1SG</option><option value="2SG">2SG</option><option value="3SG">3SG</option><option value="CB">CB</option><option value="SD">SD</option><option value="MN">MN</option><option value="MNRC">MNRC</option><option value="SERVIDOR CIVIL">SERVIDOR CIVIL</option><option value="DEPENDENTE">DEPENDENTE</option><option value="PENSIONISTA">PENSIONISTA</option><option value="CANDIDATO">CANDIDATO</option><option value="EX-MILITAR">EX-MILITAR</option></select></div><div class="form-group"><label for="NIP_MAT">NIP / MAT:</label><input type="text" id="NIP_MAT" name="NIP_MAT" required></div></div>
+        <div class="form-group"><label for="FINALIDADE_INSP">FINALIDADE DA INSP. DE SAÚDE:</label><select id="FINALIDADE_INSP" name="FINALIDADE_INSP" required><option value="">Selecione...</option><option value="BENEFÍCIO: PENSÃO CIVIL PARA PARENTE OU BENEFICIÁRIO INVÁLIDO">BENEFÍCIO: PENSÃO CIVIL PARA PARENTE OU BENEFICIÁRIO INVÁLIDO</option><option value="BENEFÍCIO: PREEXISTÊNCIA DE DOENÇA ESPECIFICADA EM LEI , ISENÇÃO DE PAGAMENTO DE IMPOSTO DE RENDA CIVIL">BENEFÍCIO: PREEXISTÊNCIA DE DOENÇA ESPECIFICADA EM LEI , ISENÇÃO DE PAGAMENTO DE IMPOSTO DE RENDA CIVIL</option><option value="CONTROLE SEMESTRAL DE RAIO-X">CONTROLE SEMESTRAL DE RAIO-X</option><option value="CONTROLE TRIENAL">CONTROLE TRIENAL</option><option value="Deixar o SAM">DEIXAR O SAM</option><option value="DEIXAR O SMI">DEIXAR O SMI</option><option value="DEIXAR O SMV">DEIXAR O SMV</option><option value="DEIXAR O SMV / TÉRMINO DE RESTRIÇÕES">DEIXAR O SMV / TÉRMINO DE RESTRIÇÕES</option><option value="ENGAJAMENTO">ENGAJAMENTO</option><option value="ENGAJAMENTO / DEIXAR O SMI">ENGAJAMENTO / DEIXAR O SMI</option><option value="INGRESSO NA EAM">INGRESSO NA EAM</option><option value="INGRESSO NO SERVIÇO MILITAR VOLUNTÁRIO">INGRESSO NO SERVIÇO MILITAR VOLUNTÁRIO</option><option value="REENGAJAMENTO PARA SMV / DEIXAR O SMV">REENGAJAMENTO PARA SMV / DEIXAR O SMV</option><option value="TAREFA POR TEMPO CERTO">TAREFA POR TEMPO CERTO</option><option value="TÉRMINO DE INCAPACIDADE">TÉRMINO DE INCAPACidade</option><option value="TÉRMINO DE RESTRIÇÕES">TÉRMINO DE RESTRIÇÕES</option><option value="VERIFICAÇÃO DE DEFICIÊNCIA FUNCIONAL">VERIFICAÇÃO DE DEFICIÊNCIA FUNCIONAL</option></select></div>
+        <div class="form-group"><label for="INFO_COMPLEMENTARES">INFORMAÇÕES COMPLEMENTARES:</label><textarea id="INFO_COMPLEMENTARES" name="INFO_COMPLEMENTARES"></textarea></div>
+        <div class="form-group"><label for="PERITO_SELECAO">PERITO RESPONSÁVEL:</label><select id="PERITO_SELECAO" name="PERITO_SELECAO" required><option value="">Selecione o Perito...</option><option value="CT Mauriston">CT Mauriston</option><option value="CT Júlio César">CT Júlio César</option><option value="1T Salyne">1T Salyne</option><option value="1T Luz">1T Luz</option><option value="2T Trindade">2T Trindade</option></select></div>
+        <div class="form-actions" id="formActionsContainer"></div>
+      </form>
+      <div id="status"></div>
+    </div>
+
+    <div id="emailModal" class="modal-overlay">
+      <div class="modal-content">
+        <h2>EMAIL</h2><div id="modalStatus"></div>
+        <div class="modal-actions">
+          <button type="button" id="sendToZimbra" class="btn btn-primary"><span class="material-symbols-outlined">upload</span> Receber por zimbra</button>
+          <button type="button" id="sendToSecretaria" class="btn btn-secondary"><span class="material-symbols-outlined">download</span> Enviar para secretaria</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let hnreData=[],cachedPdfId=null,cachedFormData=null;const form=document.getElementById("myForm"),nameContainer=document.getElementById("name-container"),grauSelect=document.getElementById("GRAU_HIERARQUICO"),nipInput=document.getElementById("NIP_MAT"),statusDiv=document.getElementById("status"),actionsContainer=document.getElementById("formActionsContainer"),emailModal=document.getElementById("emailModal"),modalStatus=document.getElementById("modalStatus");function handleNipInput(e){let t=e.target.value.replace(/\D/g,"");t.length>8&&(t=t.slice(0,8)),t.length>6?t=t.replace(/^(\d{2})(\d{4})(\d{1,2})/,"$1.$2.$3"):t.length>2&&(t=t.replace(/^(\d{2})(\d{1,4})/,"$1.$2")),e.target.value=t}function toggleNipMask(){const e=grauSelect.value;nipInput.required="CANDIDATO"!==e;const t="SERVIDOR CIVIL"===e||"CANDIDATO"===e;t?(nipInput.removeEventListener("input",handleNipInput),nipInput.placeholder="Digite o identificador",nipInput.maxLength=50,"CANDIDATO"===e&&(nipInput.placeholder="Opcional")):(nipInput.addEventListener("input",handleNipInput),nipInput.placeholder="Ex: 13.0450.24",nipInput.maxLength=11)}function resetToManual(){nameContainer.innerHTML='<label for="NOME">NOME:</label><input type="text" id="NOME" name="NOME" required>',grauSelect.value="",nipInput.value="",grauSelect.disabled=!1,nipInput.disabled=!1,toggleNipMask()}function setupHnreAutocomplete(){nameContainer.innerHTML='<label for="NOME">NOME:</label><div class="autocomplete-container"><input type="text" id="NOME" name="NOME" required placeholder="Buscar militar do HNRe..."><div id="autocomplete-list" class="autocomplete-items"></div></div>';const e=document.getElementById("NOME");e.addEventListener("input",function(){const t=this.value;closeAllLists(),t&&hnreData.filter(e=>e.name.toUpperCase().includes(t.toUpperCase())).forEach(n=>{let o=document.createElement("DIV");o.innerHTML=n.name.replace(new RegExp(t,"gi"),"<strong>$&</strong>"),o.addEventListener("click",function(){e.value=n.name,grauSelect.value=n.posto,nipInput.value=n.nip,grauSelect.disabled=!0,nipInput.disabled=!0,toggleNipMask(),closeAllLists()}),document.getElementById("autocomplete-list").appendChild(o)})}),document.addEventListener("click",t=>{t.target!==e&&closeAllLists()})}function closeAllLists(){const e=document.getElementById("autocomplete-list");e&&(e.innerHTML="")}function handleOmSelection(e){
+        "hnre"===e
+          ? 0===hnreData.length
+            ?(statusDiv.textContent="Buscando militares do HNRe...",
+              // AQUI ESTÁ A MUDANÇA:
+              google.script.run.withSuccessHandler(e=>{
+                statusDiv.textContent="",
+                "error"in e
+                  ?(statusDiv.className="error",statusDiv.textContent="Erro ao buscar dados: "+e.error)
+                  :(hnreData=e,setupHnreAutocomplete())
+              }).withFailureHandler(e=>{
+                statusDiv.className="error",statusDiv.textContent="Falha no script: "+e.message
+              }).getHnreMilitaryDataForParecer() // <-- NOME DA FUNÇÃO ATUALIZADO
+            )
+            :setupHnreAutocomplete()
+          :resetToManual()
+      }
+      function restoreFormToInitialState(){statusDiv.innerHTML="",form.reset(),grauSelect.disabled=!1,nipInput.disabled=!1,actionsContainer.innerHTML='<button type="submit" id="submitButton" class="btn btn-primary"><span class="material-symbols-outlined">description</span>Gerar PDF</button>',document.getElementById("om_hnre").checked=!0,handleOmSelection("hnre"),toggleNipMask()}
+      function showModal(){emailModal.style.display="flex";modalStatus.innerHTML=""}
+      function hideModal(){emailModal.style.display="none"}
+      function triggerEmailSend(e){modalStatus.innerHTML="Enviando e-mail...";google.script.run.withSuccessHandler(e=>{modalStatus.innerHTML=`<span class="success">${e.message}</span>`,setTimeout(hideModal,2e3)}).withFailureHandler(e=>{modalStatus.innerHTML=`<span class="error">${e.message}</span>`}).sendPdfByEmail(cachedPdfId,cachedFormData,e)}
+      document.getElementById("sendToZimbra").onclick=()=>triggerEmailSend("zimbra");
+      document.getElementById("sendToSecretaria").onclick=()=>triggerEmailSend("secretaria");
+      emailModal.addEventListener("click",e=>{e.target===emailModal&&hideModal()});
+      document.querySelectorAll('input[name="om_selection"]').forEach(e=>{e.addEventListener("change",t=>handleOmSelection(t.target.value))});
+      form.addEventListener("submit",function(e){e.preventDefault();const t=document.getElementById("submitButton");if(document.getElementById("om_outras").checked){const e=document.getElementById("NOME");e.value=e.value.toUpperCase()}t.disabled=!0,statusDiv.textContent="Gerando PDF, por favor aguarde...",statusDiv.className="";const n={};Array.from(this.elements).forEach(e=>{if(e.name&&(e.type!=="radio"||e.checked)){n[e.name]=e.value}});cachedFormData=n;google.script.run.withSuccessHandler(e=>{if(e.success){cachedPdfId=e.pdfId,statusDiv.className="success",statusDiv.innerHTML="PDF gerado com sucesso!",actionsContainer.innerHTML="";const t=document.createElement("button");t.type="button",t.className="btn btn-secondary",t.innerHTML='<span class="material-symbols-outlined">repeat</span>NOVO PARECER',t.onclick=restoreFormToInitialState,actionsContainer.appendChild(t);const n=document.createElement("a");n.href=e.pdfUrl,n.target="_blank",n.className="btn btn-success",n.innerHTML='<span class="material-symbols-outlined">open_in_new</span>ABRIR PDF',actionsContainer.appendChild(n);const o=document.createElement("button");o.type="button",o.className="btn btn-outline",o.innerHTML='<span class="material-symbols-outlined">outgoing_mail</span>ENVIAR EMAIL',o.onclick=showModal,actionsContainer.appendChild(o)}else{statusDiv.className="error",statusDiv.textContent="Erro ao gerar PDF: "+e.message,t.disabled=!1}}).withFailureHandler(e=>{statusDiv.className="error",statusDiv.textContent="Erro no script: "+e.message,t.disabled=!1}).processForm(n)});
+      document.addEventListener("DOMContentLoaded",restoreFormToInitialState);
+    </script>
+    
+    <script>
+      let BASE_URL = '';
+      function navigateTo(page) {
+        if (BASE_URL) {
+          window.top.location.href = BASE_URL + '?page=' + page;
+        } else {
+          alert('Aguarde o carregamento da página e tente novamente.');
+        }
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+        google.script.run.withSuccessHandler((url) => {
+          BASE_URL = url;
+        }).withFailureHandler((error) => {
+          console.error('Failed to get Web App URL:', error);
+          alert('Não foi possível carregar os links de navegação.');
+        }).getWebAppUrl();
+      });
+    </script>
+  </body>
+</html>
