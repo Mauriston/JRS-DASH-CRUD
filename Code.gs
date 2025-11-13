@@ -167,7 +167,7 @@ function updateMsgStatus(isNumber) {
   }
 }
 
-// --- FUNÇÃO DE UPDATE DE CONCLUSÃO (ATUALIZADA) ---
+// --- NOVA FUNÇÃO DE UPDATE DE CONCLUSÃO (ATUALIZADA) ---
 function updateInspectionConclusion(formData) {
   try {
     if (!listaControleSheet) { throw new Error("Planilha 'ListaControle' não encontrada.");
@@ -184,10 +184,9 @@ function updateInspectionConclusion(formData) {
       restricoes: headers.indexOf('Restrições'),
       statusIS: headers.indexOf('StatusIS') // <-- ADICIONADO
     };
-    
-    // <-- CÉLULA DE ERRO ATUALIZADA -->
+    // Validação dos índices
     if (colIndices.is === -1 || colIndices.laudo === -1 || colIndices.dataLaudo === -1 || colIndices.tis === -1 || colIndices.ds1a === -1 || colIndices.restricoes === -1 || colIndices.statusIS === -1) {
-      throw new Error("Colunas essenciais (IS, Laudo, DataLaudo, TIS, DS-1a, Restrições, StatusIS) não encontradas. Verifique a 1ª linha da planilha.");
+      throw new Error("Colunas essenciais (IS, Laudo, DataLaudo, StatusIS, etc.) não encontradas. Verifique a 1ª linha da planilha.");
     }
 
     // 2. Encontrar a linha da inspeção
@@ -206,7 +205,7 @@ function updateInspectionConclusion(formData) {
       throw new Error(`IS ${formData.isNumber} não encontrada.`);
     }
 
-    // 3. Formatar Restrições
+    // 3. Formatar Restrições (lógica copiada de addNewInspection)
     let restricoesString = formData.restricoes.join(', ');
     if (formData.restricoes.includes('Outros') && formData.outrosRestricao) {
       restricoesString = restricoesString.replace('Outros', `Outros: ${formData.outrosRestricao}`);
@@ -216,50 +215,34 @@ function updateInspectionConclusion(formData) {
     const targetRowOnSheet = targetRowIndex + 2;
     // +2 porque o array é 0-based e a planilha é 1-based + cabeçalho
     
-    // Atualiza os valores dos campos
+    // Atualiza os valores individualmente
     listaControleSheet.getRange(targetRowOnSheet, colIndices.laudo + 1).setValue(formData.laudo || null);
     listaControleSheet.getRange(targetRowOnSheet, colIndices.dataLaudo + 1).setValue(formData.dataLaudo || null);
     listaControleSheet.getRange(targetRowOnSheet, colIndices.tis + 1).setValue(formData.tis || null);
     listaControleSheet.getRange(targetRowOnSheet, colIndices.ds1a + 1).setValue(formData.ds1a || null);
     listaControleSheet.getRange(targetRowOnSheet, colIndices.restricoes + 1).setValue(restricoesString || null);
+    
+    // ATUALIZA O STATUSIS
+    listaControleSheet.getRange(targetRowOnSheet, colIndices.statusIS + 1).setValue(formData.novoStatusIS || 'Conclusão Pendente');
 
-    // --- LÓGICA DE STATUS (NOVA) ---
-    const { laudo, dataLaudo, tis, ds1a } = formData;
-    let newStatus = '';
-
-    if (laudo && dataLaudo && tis && ds1a) {
-      newStatus = 'TIS assinado';
-    } else if (laudo && dataLaudo && tis && !ds1a) {
-      newStatus = 'Votada JRS';
-    } else if (laudo && dataLaudo && !tis && !ds1a) {
-      newStatus = 'Concluída';
-    }
-    // --- FIM DA LÓGICA DE STATUS ---
-
-    // 5. Preparar dados de retorno
-    const updatedData = { 
-      Laudo: formData.laudo || '',
-      DataLaudo: formData.dataLaudo ?
-        new Date(formData.dataLaudo).toLocaleDateString('pt-BR') : '', // Re-formata para pt-BR
-      TIS: formData.tis || '',
-      'DS-1a': formData.ds1a || '',
-      Restrições: restricoesString || ''
-    };
-
-    // 6. Atualizar o status se a lógica definiu um novo
-    if (newStatus) {
-      listaControleSheet.getRange(targetRowOnSheet, colIndices.statusIS + 1).setValue(newStatus);
-      updatedData.StatusIS = newStatus; // Adiciona o status ao objeto de retorno
-      Logger.log(`IS ${formData.isNumber} (Linha ${targetRowOnSheet}) atualizada. Novo Status: ${newStatus}`);
-    } else {
-      Logger.log(`IS ${formData.isNumber} (Linha ${targetRowOnSheet}) atualizada. Status não alterado.`);
-    }
-
-    // 7. Retornar os dados formatados para o frontend
+    Logger.log(`IS ${formData.isNumber} (Linha ${targetRowOnSheet}) atualizada com sucesso.`);
+    // 5. Retornar os dados formatados para o frontend
     return { 
       success: true, 
       message: 'Conclusão salva com sucesso!',
-      updatedData: updatedData
+      updatedData: {
+        Laudo: formData.laudo ||
+        '',
+        DataLaudo: formData.dataLaudo ?
+        new Date(formData.dataLaudo).toLocaleDateString('pt-BR') : '', // Re-formata para pt-BR
+        TIS: formData.tis ||
+        '',
+        'DS-1a': formData.ds1a ||
+        '',
+        Restrições: restricoesString ||
+        '',
+        StatusIS: formData.novoStatusIS || 'Conclusão Pendente' // <-- ADICIONADO
+      } 
     };
   } catch (e) {
     Logger.log('Erro em updateInspectionConclusion: ' + e.toString());
