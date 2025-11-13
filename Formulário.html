@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <style>
+      :root { --primary-color: #050f41; }
+      .hidden { display: none !important; }
+      body{font-family:'Carlito',sans-serif;background-color:#f4f4f9;margin:0;padding:20px;color:#333}
+      .container{max-width:800px;margin:20px auto;background-color:#fff;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.1);overflow:hidden}
+      .header-box{display:flex;align-items:center;background-color:var(--primary-color);color:#fff;padding:20px 30px}
+      .header-logo{height:65px;width:auto;margin-right:25px}
+      .header-text h2{font-family:'Oswald',sans-serif;font-size:26px;margin:0;font-weight:700;line-height:1.2}
+      .header-text p{font-family:'Carlito',sans-serif;font-size:18px;margin:5px 0 0;opacity:.9}
+      .form-title{text-align:center;font-family:'Oswald',sans-serif;color:#333;font-size:22px;margin:25px 0 15px}
+      form{display:flex;flex-direction:column;gap:20px;padding:30px}
+      .form-row{display:flex;flex-wrap:wrap;gap:20px}
+      .form-group{flex:1;display:flex;flex-direction:column;min-width:200px}
+      label{font-family:'Oswald',sans-serif;font-weight:700;margin-bottom:8px;font-size:15px;color:#555;text-transform:uppercase}
+      input[type=text],input[type=date],textarea,select{padding:10px;font-size:16px;font-family:'Carlito',sans-serif;border:1px solid #ccc;border-radius:4px;width:100%;box-sizing:border-box}
+      input:disabled, input[readonly] { background-color: #e9ecef; cursor: not-allowed; }
+      textarea{resize:vertical;min-height:100px}
+      .form-actions{display:flex;justify-content:flex-end;margin-top:10px;gap:10px}
+      .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 25px;font-size:18px;font-family:'Oswald',sans-serif;font-weight:700;color:#fff;border:none;border-radius:4px;cursor:pointer;transition:background-color .3s ease;text-decoration:none}
+      .btn-primary{background-color:var(--primary-color)}.btn-primary:hover{background-color:#0a1a7a}
+      .btn:disabled{background-color:#ccc;cursor:not-allowed}
+      #status{margin: 0 30px 20px 30px;padding: 12px;border-radius: 5px;font-size: 1em;text-align: center; display:none;}
+      .processing{color: #555;background-color: #e6e8f0;border: 1px solid #c9d0e8;}
+      .success{background-color: #e6f7e9;border: 1px solid #5cb85c;color: #2e6035;}
+      .error{background-color: #f7e6e6;border: 1px solid #d9534f;color: #a94442;font-weight: bold;}
+      .select2-container .select2-selection--single { height: 42px !important; padding: 5px; }
+      .select2-container--default .select2-selection--single .select2-selection__arrow { top: 8px !important; }
+      .section-header {font-family: 'Oswald', sans-serif;font-size: 18px;color: var(--primary-color);margin-top: 15px;margin-bottom: 0;padding-bottom: 5px;border-bottom: 2px solid var(--primary-color);}
+      .divider {border: none;border-top: 1px solid #e0e0e0;margin: 0;}
+      #secao-conclusao {display: flex;flex-direction: column;gap: 20px;}
+      .accordion-header {background-color: #f1f1f1;color: #444;cursor: pointer;padding: 12px;width: 100%;border: 1px solid #ccc;border-radius: 4px;text-align: left;font-family: 'Oswald', sans-serif;font-size: 15px;font-weight: 700;text-transform: uppercase;transition: background-color 0.2s;display: flex;justify-content: space-between;align-items: center;}
+      .accordion-header:hover { background-color: #ddd; }
+      .accordion-header.active { border-radius: 4px 4px 0 0; }
+      .accordion-header .material-symbols-outlined { transition: transform 0.2s; }
+      .accordion-header.active .material-symbols-outlined { transform: rotate(180deg); }
+      .accordion-panel {padding: 15px;border: 1px solid #ccc;border-top: none;border-radius: 0 0 4px 4px;display: none;}
+      .checkbox-grid {column-count: 3;column-gap: 15px;}
+      .checkbox-item {display: flex;align-items: center;margin-bottom: 10px;break-inside: avoid-column;}
+      .checkbox-item label {font-family: 'Carlito', sans-serif;font-size: 16px;font-weight: normal;text-transform: none;margin-bottom: 0;cursor: pointer;}
+      .checkbox-item input[type="checkbox"] {margin-right: 8px;width: 18px;height: 18px; cursor: pointer;}
+      .checkbox-item input[type="checkbox"]:checked + label {font-weight: bold;}
+      .checkbox-item input[type="text"] {padding: 4px 6px;font-size: 14px;margin-left: 5px;flex-grow: 1;}
+
+      /* --- ESTILOS PARA NAVEGAÇÃO (ATUALIZADO) --- */
+      .header-actions{display:flex;margin-left:auto;gap:15px}
+      .IconButton{display:flex;align-items:center;justify-content:center;width:55px;height:55px;border-radius:50%;background-color:rgba(255,255,255,0.1);color:#fff;cursor:pointer;transition:background-color .2s ease-in-out; text-decoration: none;}
+      .IconButton:hover{background-color:rgba(255,255,255,0.2)}
+      .IconButton .material-symbols-outlined { font-size: 30px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+      <div class="header-box">
+        <img src="https://i.imgur.com/KUbQz08.png" alt="Logo HNRe" class="header-logo">
+        <div class="header-text">
+          <h2>HOSPITAL NAVAL DE RECIFE</h2>
+          <p>JUNTA REGULAR DE SAÚDE</p>
+        </div>
+        <div class="header-actions">
+            <div class="IconButton" onclick="navigateTo('dashboard')" title="Dashboard">
+              <span class="material-symbols-outlined">dashboard</span>
+            </div>
+            <div class="IconButton" onclick="navigateTo('parecer')" title="Gerar Parecer">
+              <span class="material-symbols-outlined">edit_note</span>
+            </div>
+        </div>
+      </div>
+      <h2 class="form-title">ADICIONAR NOVA INSPEÇÃO</h2>
+
+      <div id="status" class="hidden"></div>
+      
+      <form id="inspectionForm">
+        <h3 class="section-header">INSPECIONADO</h3>
+        <div class="form-row"><div class="form-group"><label for="om">OM</label><select id="om" name="om" required></select></div><div class="form-group" style="flex: 2;"><label for="inspecionado">Inspecionado</label><div id="inspecionadoContainer"><input type="text" id="inspecionado" name="inspecionado" required></div></div></div>
+        <div class="form-row"><div class="form-group"><label for="nip">NIP</label><input type="text" id="nip" name="nip"></div><div class="form-group"><label for="pg">Posto/Graduação</label><div id="pgContainer"><select id="pg" name="pg" required></select></div></div></div><hr class="divider">
+        <h3 class="section-header">IS</h3>
+        <div class="form-row"><div class="form-group"><label for="is">Nº IS</label><input type="text" id="is" name="is"></div><div class="form-group"><label for="dataEntrevista">Data da Entrevista</label><input type="date" id="dataEntrevista" name="dataEntrevista" required></div></div>
+        <div class="form-row"><div class="form-group" style="flex:2"><label for="finalidade">Finalidade</label><select id="finalidade" name="finalidade" required></select></div><div class="form-group"><label for="statusIS">Status</label><select id="statusIS" name="statusIS" required></select></div></div><hr class="divider">
+        <div id="secao-conclusao" class="hidden"><h3 class="section-header">CONCLUSÃO</h3><div id="laudo-group" class="form-group"><label for="laudo">Laudo</label><textarea id="laudo" name="laudo" rows="4"></textarea></div><div id="restricoes-section" class="form-group hidden"><button type="button" class="accordion-header"><span>Restrições</span><span class="material-symbols-outlined">expand_more</span></button><div class="accordion-panel"><div id="restricoes-grid" class="checkbox-grid"></div></div></div><div id="dataLaudo-group" class="form-group hidden"><label for="dataLaudo">Data do Laudo</label><input type="date" id="dataLaudo" name="dataLaudo"></div><div class="form-row"><div id="tis-group" class="form-group hidden"><label for="tis">Nº TIS</label><input type="text" id="tis" name="tis"></div><div id="ds1a-group" class="form-group hidden"><label for="ds1a">CÓDIGO DS-1A</label><input type="text" id="ds1a" name="ds1a"></div></div></div>
+        <div class="form-actions"><button type="submit" id="submitBtn" class="btn btn-primary"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span> Adicionar Inspeção</button></div>
+      </form>
+    </div>
+
+    <script>
+      let hnreMilitaryData = []; let originalPgOptions = [];
+      $(document).ready(function() { document.getElementById('dataEntrevista').valueAsDate = new Date(); setStatus('processing', 'Carregando opções do formulário...'); google.script.run.withSuccessHandler(populateDropdowns).withFailureHandler(onInitialLoadFailure).getDropdownData(); $('#nip').on('input', maskNip); $('#inspectionForm').on('submit', handleFormSubmit); $('#om').on('change', handleOmChange); $('#finalidade').on('change', checkRestricoesVisibility); $('#statusIS').on('change', handleStatusChange); $('#secao-conclusao').on('input keyup', '#laudo', handleLaudoInput); $('.accordion-header').on('click', function() { $(this).toggleClass('active').next('.accordion-panel').slideToggle(200); }); });
+      function onInitialLoadFailure(error) { setStatus('error', `<b>Falha Crítica:</b> Não foi possível carregar os dados dos menus. <br><small>Erro: ${error.message}</small>`); $('#inspectionForm').find('input, select, textarea, button').prop('disabled', true); }
+      function populateDropdowns(data) { setStatus('clear'); originalPgOptions = data.pgOptions; const statusesToRemove = ['Auditoria', 'Cancelada', 'Faltou', 'JSD', 'Remarcada', 'Restituída JSD', 'Restituída Auditoria']; const filteredStatusOptions = data.statusOptions.filter(opt => !statusesToRemove.includes(opt)); populateSimpleSelect('#om', data.omOptions, 'Selecione a OM...'); populateSimpleSelect('#finalidade', data.finalidadeOptions, 'Selecione a finalidade...'); populateSimpleSelect('#pg', originalPgOptions, 'Selecione o P/G...'); populateSimpleSelect('#statusIS', filteredStatusOptions, 'Selecione o status...'); populateRestricoes(data.restricoesOptions); $('#om').val('HNRe').trigger('change'); $('#statusIS').val('Agendada'); }
+      function populateSimpleSelect(selector, options, placeholder) { const select = $(selector); select.empty(); select.append(`<option value="" disabled selected>${placeholder}</option>`); if (options && options.length > 0) options.sort().forEach(opt => select.append(new Option(opt, opt))); }
+      function populateRestricoes(options) { const grid = $('#restricoes-grid'); grid.empty(); grid.append(createCheckboxItem('LTS', 'restricoes', 'LTS')); if(options) options.forEach(opt => { if(opt !== 'LTS') grid.append(createCheckboxItem(opt, 'restricoes', opt)); }); const outrosHtml = `<div class="checkbox-item"><input type="checkbox" id="restricao-outros" name="restricoes" value="Outros"><label for="restricao-outros">Outros:</label><input type="text" id="restricao-outros-text" class="hidden" placeholder="Descreva..."></div>`; grid.append(outrosHtml); $('input[name="restricoes"]').on('change', handleRestricaoChange); }
+      function createCheckboxItem(value, name, label) { const id = `restricao-${value.replace(/[^a-zA-Z0-9]/g, "")}`; return `<div class="checkbox-item"><input type="checkbox" id="${id}" name="${name}" value="${value}"><label for="${id}">${label}</label></div>`; }
+      function handleOmChange() { if ($(this).val() === 'HNRe') setupHnreMode(); else setupManualMode(); checkRestricoesVisibility(); }
+      function handleStatusChange() { const status = $(this).val(); const conclusaoStatuses = ['Concluída', 'TIS assinado', 'Votada JRS']; const showConclusao = conclusaoStatuses.includes(status); $('#secao-conclusao').toggleClass('hidden', !showConclusao); const showTis = ['TIS assinado', 'Votada JRS'].includes(status); const showDs1a = status === 'TIS assinado'; $('#tis-group').toggleClass('hidden', !showTis); $('#ds1a-group').toggleClass('hidden', !showDs1a); if (!showConclusao) { $('#secao-conclusao').find('input, textarea').val(''); handleLaudoInput(); } $('#laudo, #tis, #ds1a').prop('required', false); switch(status) { case 'Concluída': $('#laudo').prop('required', true); break; case 'Votada JRS': $('#laudo, #tis').prop('required', true); break; case 'TIS assinado': $('#laudo, #tis, #ds1a').prop('required', true); break; } }
+      function handleLaudoInput() { const laudoText = ($('#laudo').val() || '').trim(); const showDataLaudo = laudoText !== ''; const dataLaudoInput = $('#dataLaudo'); $('#dataLaudo-group').toggleClass('hidden', !showDataLaudo); if(showDataLaudo && !dataLaudoInput.val()) document.getElementById('dataLaudo').valueAsDate = new Date(); if(!showDataLaudo) dataLaudoInput.val(''); checkRestricoesVisibility(); }
+      function checkRestricoesVisibility() { const laudoPreenchido = ($('#laudo').val() || '').trim() !== ''; const omEhHNRe = $('#om').val() === 'HNRe'; const finalidadesValidas = ['TÉRMINO DE RESTRIÇÕES', 'TÉRMINO DE INCAPACIDADE', 'VERIFICAÇÃO DE DEFICIÊNCIA FUNCIONAL']; const finalidadeEhValida = finalidadesValidas.includes($('#finalidade').val()); if (laudoPreenchido && omEhHNRe && finalidadeEhValida) { $('#restricoes-section').removeClass('hidden'); } else { $('#restricoes-section').addClass('hidden'); if ($('.accordion-header').hasClass('active')) $('.accordion-header').trigger('click'); $('input[name="restricoes"]').prop('checked', false).trigger('change'); } }
+      function handleRestricaoChange(e) { const checkbox = $(e.target); const isChecked = checkbox.is(':checked'); const value = checkbox.val(); if (value === 'LTS' && isChecked) { $('input[name="restricoes"]').not(checkbox).prop('checked', false).prop('disabled', true); $('#restricao-outros-text').addClass('hidden').val(''); } else if (value === 'LTS' && !isChecked) { $('input[name="restricoes"]').prop('disabled', false); } else if (value !== 'LTS' && isChecked) { $('input[name="restricoes"][value="LTS"]').prop('disabled', true); } else if (value !== 'LTS' && !isChecked) { if ($('input[name="restricoes"]:checked').not('[value="LTS"]').length === 0) { $('input[name="restricoes"][value="LTS"]').prop('disabled', false); } } if (value === 'Outros') { $('#restricao-outros-text').toggleClass('hidden', !isChecked); if (!isChecked) $('#restricao-outros-text').val(''); } }
+      function setupHnreMode() { $('#inspecionadoContainer').html('<span>Carregando...</span>'); $('#pgContainer').html('<input type="text" id="pg" name="pg" required readonly>'); $('#nip').val('').prop('readonly', true); google.script.run.withSuccessHandler(function(data) { hnreMilitaryData = data; const selectHtml = '<select id="inspecionado" name="inspecionado" required style="width:100%;"></select>'; $('#inspecionadoContainer').html(selectHtml); const inspSelect = $('#inspecionado'); inspSelect.append(new Option('', '', true, true)); data.forEach(m => inspSelect.append(new Option(m.inspecionado, m.inspecionado))); inspSelect.select2({ placeholder: 'Digite para buscar...', allowClear: true }); inspSelect.on('change', function() { const selectedName = $(this).val(); const military = hnreMilitaryData.find(m => m.inspecionado === selectedName); if (military) { $('#pg').val(military.pg); $('#nip').val(military.nip); } else { $('#pg, #nip').val(''); } }); }).withFailureHandler(onInitialLoadFailure).getHnreMilitaryData(); }
+      function setupManualMode() { if ($('#inspecionado').data('select2')) $('#inspecionado').select2('destroy'); $('#inspecionadoContainer').html('<input type="text" id="inspecionado" name="inspecionado" required>'); $('#pgContainer').html('<select id="pg" name="pg" required></select>'); populateSimpleSelect('#pg', originalPgOptions, 'Selecione o P/G...'); $('#nip').val('').prop('readonly', false); }
+      function handleFormSubmit(e) { e.preventDefault(); const btn = $('#submitBtn'); btn.prop('disabled', true).html('<span class="material-symbols-outlined" style="font-variation-settings: \'FILL\' 1;">hourglass_top</span> Salvando...'); setStatus('processing', 'Salvando...'); const formData = { om: $('#om').val(), inspecionado: ($('#inspecionado').val() || '').toUpperCase(), pg: $('#pg').val(), nip: $('#nip').val(), is: $('#is').val(), finalidade: $('#finalidade').val(), dataEntrevista: $('#dataEntrevista').val(), statusIS: $('#statusIS').val(), tis: $('#tis').val(), ds1a: $('#ds1a').val(), laudo: $('#laudo').val(), dataLaudo: $('#dataLaudo').val(), restricoes: $('input[name="restricoes"]:checked').map(function() { return this.value; }).get(), outrosRestricao: $('#restricao-outros-text').val() }; google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).addNewInspection(formData); }
+      function onSuccess(response) { if (response.status === 'success') { setStatus('success', `<strong>Sucesso!</strong> ${response.message}`); $('#submitBtn').prop('disabled', false).html('<span class="material-symbols-outlined" style="font-variation-settings: \'FILL\' 1;">add_circle</span> Adicionar Outra'); $('#inspectionForm')[0].reset(); document.getElementById('dataEntrevista').valueAsDate = new Date(); $('#statusIS').val('Agendada'); $('#om').val('HNRe').trigger('change'); handleStatusChange(); } else { onFailure({ message: response.message }); } }
+      function onFailure(error) { setStatus('error', `ERRO: ${error.message}`); $('#submitBtn').prop('disabled', false).html('<span class="material-symbols-outlined" style="font-variation-settings: \'FILL\' 1;">error</span> Tentar Novamente'); }
+      function setStatus(type, message) { const statusDiv = $('#status'); statusDiv.removeClass('processing success error').hide(); if (type !== 'clear') { statusDiv.addClass(type).html(message).show(); } }
+      function maskNip(e){let v=e.target.value.replace(/\D/g,"");v.length>8&&(v=v.slice(0,8)),v.length>6?v=v.replace(/^(\d{2})(\d{4})(\d{1,2})/,"$1.$2.$3"):v.length>2&&(v=v.replace(/^(\d{2})(\d{1,4})/,"$1.$2")),e.target.value=v}
+      function setupHnreMode() { 
+        $('#inspecionadoContainer').html('<span>Carregando...</span>');
+        $('#pgContainer').html('<input type="text" id="pg" name="pg" required readonly>');
+        $('#nip').val('').prop('readonly', true);
+        // AQUI ESTÁ A MUDANÇA:
+        google.script.run.withSuccessHandler(function(data) {
+          hnreMilitaryData = data;
+          const selectHtml = '<select id="inspecionado" name="inspecionado" required style="width:100%;"></select>';
+          $('#inspecionadoContainer').html(selectHtml);
+          const inspSelect = $('#inspecionado');
+          inspSelect.append(new Option('', '', true, true));
+          data.forEach(m => inspSelect.append(new Option(m.inspecionado, m.inspecionado)));
+          inspSelect.select2({ placeholder: 'Digite para buscar...', allowClear: true });
+          inspSelect.on('change', function() {
+            const selectedName = $(this).val();
+            const military = hnreMilitaryData.find(m => m.inspecionado === selectedName);
+            if (military) { $('#pg').val(military.pg); $('#nip').val(military.nip); } 
+            else { $('#pg, #nip').val(''); }
+          });
+        }).withFailureHandler(onInitialLoadFailure)
+        .getHnreMilitaryDataForForm(); // <-- NOME DA FUNÇÃO ATUALIZADO
+      }
+
+      function handleFormSubmit(e) {
+        e.preventDefault();
+        const btn = $('#submitBtn'); btn.prop('disabled', true).html('<span class="material-symbols-outlined" style="font-variation-settings: \'FILL\' 1;">hourglass_top</span> Salvando...');
+        setStatus('processing', 'Salvando...');
+        const formData = {
+          om: $('#om').val(), inspecionado: ($('#inspecionado').val() || '').toUpperCase(),
+          pg: $('#pg').val(), nip: $('#nip').val(), is: $('#is').val(),
+          finalidade: $('#finalidade').val(), dataEntrevista: $('#dataEntrevista').val(),
+          statusIS: $('#statusIS').val(), tis: $('#tis').val(), ds1a: $('#ds1a').val(),
+          laudo: $('#laudo').val(), dataLaudo: $('#dataLaudo').val(),
+          restricoes: $('input[name="restricoes"]:checked').map(function() { return this.value; }).get(),
+          outrosRestricao: $('#restricao-outros-text').val()
+        };
+        // ATUALIZADO AQUI TAMBÉM:
+        google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).addNewInspection(formData);
+      }
+    </script>
+    
+    <script>
+      let BASE_URL = '';
+      function navigateTo(page) {
+        if (BASE_URL) {
+          window.top.location.href = BASE_URL + '?page=' + page;
+        }
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+        google.script.run.withSuccessHandler((url) => {
+          BASE_URL = url;
+        }).getWebAppUrl();
+      });
+    </script>
+</body>
+</html>
